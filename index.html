@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Hyong-gu Hwang">
+<meta name="dcterms.date" content="2025-08-05">
 
-<title>Structural 2025 - Day 3 - SMM</title>
+<title>Structural 2025 - Wharton 2025 Summer School</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -4732,7 +4734,7 @@ vertical-align: -.125em;
 <span class="menu-text">Day 2</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./day3.html" aria-current="page"> 
+    <a class="nav-link" href="./day3.html"> 
 <span class="menu-text">Day 3</span></a>
   </li>  
   <li class="nav-item">
@@ -4751,16 +4753,7 @@ vertical-align: -.125em;
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
-    <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="99">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#goals" id="toc-goals" class="nav-link active" data-scroll-target="#goals">Goals</a></li>
-  <li><a href="#smm-estimator" id="toc-smm-estimator" class="nav-link" data-scroll-target="#smm-estimator">SMM Estimator</a></li>
-  <li><a href="#optimizers" id="toc-optimizers" class="nav-link" data-scroll-target="#optimizers">Optimizers</a></li>
-  <li><a href="#weighting-matrix" id="toc-weighting-matrix" class="nav-link" data-scroll-target="#weighting-matrix">Weighting Matrix</a></li>
-  </ul>
-</nav>
+    
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
@@ -4771,14 +4764,27 @@ vertical-align: -.125em;
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title">Day 3 - SMM</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<div class="quarto-title-block"><div><h1 class="title">Wharton 2025 Summer School</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<p class="subtitle lead">Structural Estimation in Corporate Finance</p>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Hyong-gu Hwang </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">August 5, 2025</p>
+    </div>
+  </div>
   
     
   </div>
@@ -4788,30 +4794,20 @@ vertical-align: -.125em;
 </header>
 
 
-<section id="goals" class="level3">
-<h3 class="anchored" data-anchor-id="goals">Goals</h3>
-<p>The goals for this day are to code up the SMM estimator. That is, use influence functions to estimate the covariance matrix for the moments, compute the optimal weight matrix, code up the estimator, and debug it. The deliverables are:</p>
+<hr>
+<p>Welcome! This site contains my solutions and notes from the Wharton Summer School project on structural estimation in corporate finance.</p>
+<!-- 💼 [Dropbox Course Folder](https://www.dropbox.com/scl/fo/eb1kfpv844bqblso1tl94/AFw_OX98l26oShbGX3FDogc?rlkey=iqpwk1l2rwaccn6hnlb8ywdlb&st=fua5lh4v&dl=0) -->
+<p>🗓️ <a href="https://rodneywhitecenter.wharton.upenn.edu/program-schedule/">Program Schedule</a></p>
+<p>Use the top menu bar to navigate to:</p>
 <ul>
-<li>Use influence functions to estimate the covariance matrix for the moments you have chosen, clustering by firm.</li>
-<li>Compute the optimal SMM weight matrix.</li>
-<li>Code up the SMM routine.</li>
-<li>Write the code for finding the parameter vector that minimizes the econometric score, i.e. the distance between the actual and simulated moments.</li>
-<li>Choose a minimizer that will avoid local minima, such as the simulated annealing minimization algorithm or particle swarm optimization.</li>
+<li>The dynamic model</li>
+<li>Overview of functions</li>
+<li>Project assignments</li>
 </ul>
-</section>
-<section id="smm-estimator" class="level3">
-<h3 class="anchored" data-anchor-id="smm-estimator">SMM Estimator</h3>
-</section>
-<section id="optimizers" class="level3">
-<h3 class="anchored" data-anchor-id="optimizers">Optimizers</h3>
-</section>
-<section id="weighting-matrix" class="level3">
-<h3 class="anchored" data-anchor-id="weighting-matrix">Weighting Matrix</h3>
 
 
 <!-- -->
 
-</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -5397,23 +5393,26 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class>
 <div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> Day 3 - SMM</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">### Goals</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>The goals for this day are to code up the SMM estimator. That is, use influence functions to estimate the covariance matrix for the moments, compute the optimal weight matrix, code up the estimator, and debug it. The deliverables are:</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> Wharton 2025 Summer School</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> Structural Estimation in Corporate Finance</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> Hyong-gu Hwang</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> August 5, 2025</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Use influence functions to estimate the covariance matrix for the moments you have chosen, clustering by firm.</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Compute the optimal SMM weight matrix. </span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Code up the SMM routine. </span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Write the code for finding the parameter vector that minimizes the econometric score, i.e. the distance between the actual and simulated moments. </span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Choose a minimizer that will avoid local minima, such as the simulated annealing minimization algorithm or particle swarm optimization. </span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### SMM Estimator</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">### Optimizers</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">### Weighting Matrix</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>Welcome! This site contains my solutions and notes from the Wharton Summer School project on structural estimation in corporate finance.</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- 💼 [Dropbox Course Folder](https://www.dropbox.com/scl/fo/eb1kfpv844bqblso1tl94/AFw_OX98l26oShbGX3FDogc?rlkey=iqpwk1l2rwaccn6hnlb8ywdlb&amp;st=fua5lh4v&amp;dl=0) --&gt;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>🗓️ <span class="co">[</span><span class="ot">Program Schedule</span><span class="co">](https://rodneywhitecenter.wharton.upenn.edu/program-schedule/)</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>Use the top menu bar to navigate to:</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The dynamic model</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Overview of functions</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Project assignments</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 
