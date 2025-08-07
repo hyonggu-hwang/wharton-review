@@ -1,0 +1,114 @@
+[
+  {
+    "objectID": "day1.html",
+    "href": "day1.html",
+    "title": "Day 1 - Value Function Iteration",
+    "section": "",
+    "text": "Goals\nThe goals for this day are to numerically solve the model and understand how it works, using the numerical techniques covered by Stephen Terry.\n\n\nDeliverables\n\nPlot the value function against the state variables. What is the intuition?\nPlot the policy function against the state variables. What is the intuition?\nHow do the two plots above change with the values of \\(\\alpha\\) and \\(\\delta\\)?\nWrite a subroutine that takes the model’s solution and parameters as inputs, then produces a simulated data set as output.\nUse the Tauchen (1986) method to discretize the state space.\n\n\n\nComparative Statics\n\n\nSensitivity Analysis"
+  },
+  {
+    "objectID": "day2.html",
+    "href": "day2.html",
+    "title": "Day 2 - Value Function Iteration",
+    "section": "",
+    "text": "Goals\nThe goals for this day to develop an identification strategy, choose features of the data to target in the estimation, and write code for computing those features in both the actual and simulated data. Set \\(\\beta = 0.96\\), \\(\\rho = 0.75\\), \\(\\sigma = 0.30\\), and \\(\\lambda = 0.05\\). The deliverables are:\n\nWhich features of the data will you ask the model to fit? These features may include means, variances, regression coefficients, or correlations.\nExplain which moment or moments are most important for identifying each model parameter. Create a table showing how each simulated moment changes as you perturb \\(\\alpha\\) and \\(\\delta\\).\nDownlad the data and read the documentation. The data set contains cleaned Compustat data on non-financial firms from 1971 - 2016. These variables should give you a hint about the types of moments that will work well.\nWrite a subroutine for computing the vector of moments from the actual data and simulated data.\nIf one of your moments is an AR1 coefficient, use the Han and Philips method at the end of Toni’s slides from today.\n\n\n\nMoment Selection\n\n\nSensitivity of Moments\n\n\nEmpirical Data"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Wharton 2025 Summer School",
+    "section": "",
+    "text": "Welcome! This site contains my solutions and notes from the Wharton Summer School project on structural estimation in corporate finance.\n💼 Dropbox Course Folder\n🗓️ Program Schedule\nUse the top menu bar to navigate to:\n\nThe dynamic model\nOverview of functions\nProject assignments"
+  },
+  {
+    "objectID": "model.html",
+    "href": "model.html",
+    "title": "The Model",
+    "section": "",
+    "text": "The setting is an infinite-horizon, discrete-time environment in which a manager acts on behalf of shareholders to maximize the expected present value of their distributions. The firm uses capital in a decreasing-returns technology to generate operating income according to \\(zK^{\\alpha}\\), where \\(K\\) is the capital stock, \\(z\\) is a profitability shock, and \\(\\alpha &lt; 1\\) governs the degree of returns to scale.\nThe profitability shock \\(z\\) is log-normally distributed and follows the process: \\[\n    \\ln(z') = \\rho \\ln(z) + \\sigma \\varepsilon', \\quad \\varepsilon' \\sim \\mathcal{N}(0, 1)\n\\]\nEach period, the firm chooses investment \\(I\\), which is defined by a standard capital accumulation identity: \\[\nK' = (1 - \\delta)K + I\n\\]\nThe price of capital goods is normalized to one. The firm’s cash flow, \\(E^*(K, K', z)\\), is its operating income minus its expenditure on investment:\n\n\\[\n    \\underbrace{E^*(K, K', z)}_{\\text{Internal cash flow}} = \\underbrace{zK^{\\alpha}}_{\\text{Income}} - \\underbrace{(K' - (1 - \\delta)K)}_{\\text{Investment}}\n\\]\nCash flows to shareholders, \\(E(K, K', z)\\), are defined in terms of the firm’s (internal) cash flows \\(E^*(K, K', z)\\). A positive firm cash flow is distributed to its stockholders, while a negative cash flow implies that the firm instead obtains funds from shareholders. In this case, the firm pays a linear cost \\(\\lambda\\). Thus:\n\n\nThe \\(E\\) function can also be thought of as the firm’s per-period return function.\n\\[\n\\begin{align*}\n    E(K, K', z) =\n    \\begin{cases}\n    E^* & \\text{if } E^* \\geq 0 \\\\\n    E^*(1 + \\lambda) & \\text{if } E^* &lt; 0\n    \\end{cases}\n\\end{align*}\n\\]\nHaving defined cash flows, we can now state the firm’s dynamic programming problem: \\[\n\\begin{aligned}\n    \\Pi(K, z) = & \\max_{K'} \\left\\{ E(K, K', z) + \\beta \\; \\mathbb{E}[\\Pi(K', z')] \\right\\} \\\\\n            &\\text{s.t.} \\quad K' = (1 - \\delta)K + I\n\\end{aligned}\n\\]\nNotice that this optimization problem does not have a closed-form solution, because of the non-linearity introduced by the cash flow function \\(E(K, K', z)\\). Therefore, we will solve the problem numerically using value function iteration."
+  },
+  {
+    "objectID": "model.html#operating-profits",
+    "href": "model.html#operating-profits",
+    "title": "The Model",
+    "section": "Operating Profits",
+    "text": "Operating Profits\n…with math blocks…"
+  },
+  {
+    "objectID": "model.html#capital-accumulation",
+    "href": "model.html#capital-accumulation",
+    "title": "The Model",
+    "section": "Capital Accumulation",
+    "text": "Capital Accumulation\n…"
+  },
+  {
+    "objectID": "model.html#cash-flow-function",
+    "href": "model.html#cash-flow-function",
+    "title": "The Model",
+    "section": "Cash Flow Function",
+    "text": "Cash Flow Function\n…"
+  },
+  {
+    "objectID": "model.html#bellman-equation",
+    "href": "model.html#bellman-equation",
+    "title": "The Model",
+    "section": "Bellman Equation",
+    "text": "Bellman Equation"
+  },
+  {
+    "objectID": "functions.html",
+    "href": "functions.html",
+    "title": "Key Functions",
+    "section": "",
+    "text": "Model Solver\n\n\nSimulation Subroutines\n\n\nEstimation Setup"
+  },
+  {
+    "objectID": "day4.html",
+    "href": "day4.html",
+    "title": "Day 4 - Overidentification Test",
+    "section": "",
+    "text": "Goals\nThe goals for this day are to finish coding up the SMM estimator, run it, and also perform the test of overidentifying restrictions and counterfactual analyses. The deliverables are:\n\nSMM estimator\nCompute your final parameter estimates and their standard errors. Do they make sense?\nHow well does the model fit the data? Compare the simulated and empirical moments.\nDoes the model fail the test of overidnentifying restrictions?\nWhat would be an interesting counterfactual experiment to run? How would you do it?\n\n\n\nStandard Errors\n\n\nOveridentification Test\n\n\nModel Fit\n\n\nCounterfactuals"
+  },
+  {
+    "objectID": "day3.html",
+    "href": "day3.html",
+    "title": "Day 3 - SMM",
+    "section": "",
+    "text": "Goals\nThe goals for this day are to code up the SMM estimator. That is, use influence functions to estimate the covariance matrix for the moments, compute the optimal weight matrix, code up the estimator, and debug it. The deliverables are:\n\nUse influence functions to estimate the covariance matrix for the moments you have chosen, clustering by firm.\nCompute the optimal SMM weight matrix.\nCode up the SMM routine.\nWrite the code for finding the parameter vector that minimizes the econometric score, i.e. the distance between the actual and simulated moments.\nChoose a minimizer that will avoid local minima, such as the simulated annealing minimization algorithm or particle swarm optimization.\n\n\n\nSMM Estimator\n\n\nOptimizers\n\n\nWeighting Matrix"
+  },
+  {
+    "objectID": "day1.html#goals",
+    "href": "day1.html#goals",
+    "title": "Day 1 - Value Function Iteration",
+    "section": "",
+    "text": "WOW, so every time i edit, it updates?\nThe goals for this day are to numerically solve the model and understand how it works, using the numerical techniques covered by Stephen Terry."
+  },
+  {
+    "objectID": "day1.html#deliverables",
+    "href": "day1.html#deliverables",
+    "title": "Day 1 - Value Function Iteration",
+    "section": "Deliverables",
+    "text": "Deliverables\n\nPlot the value function against the state variables. What is the intuition?\nPlot the policy function against the state variables. What is the intuition?\nHow do the two plots above change with the values of \\(\\alpha\\) and \\(\\delta\\)?\nWrite a subroutine that takes the model’s solution and parameters as inputs, then produces a simulated data set as output.\nUse the Tauchen (1986) method to discretize the state space."
+  },
+  {
+    "objectID": "day1.html#comparative-statics",
+    "href": "day1.html#comparative-statics",
+    "title": "Day 1 - Value Function Iteration",
+    "section": "Comparative Statics",
+    "text": "Comparative Statics"
+  },
+  {
+    "objectID": "day1.html#sensitivity-analysis",
+    "href": "day1.html#sensitivity-analysis",
+    "title": "Day 1 - Value Function Iteration",
+    "section": "Sensitivity Analysis",
+    "text": "Sensitivity Analysis"
+  },
+  {
+    "objectID": "day0.html",
+    "href": "day0.html",
+    "title": "Project Overview",
+    "section": "",
+    "text": "Day 1\n\nPlot the value function against the state variables. What is the intuition?\nPlot the policy function against the state variables. What is the intuition?\nHow do the two plots above change with the values of \\(\\alpha\\) and \\(\\delta\\)?\nWrite a subroutine that takes the model’s solution and parameters as inputs, then produces a simulated data set as output.\nUse the Tauchen (1986) method to discretize the state space.\n\n\n\nDay 2\n\nWhich features of the data will you ask the model to fit? These features may include means, variances, regression coefficients, or correlations.\nExplain which moment or moments are most important for identifying each model parameter. Create a table showing how each simulated moment changes as you perturb \\(\\alpha\\) and \\(\\delta\\).\nDownlad the data and read the documentation. The data set contains cleaned Compustat data on non-financial firms from 1971 - 2016. These variables should give you a hint about the types of moments that will work well.\nWrite a subroutine for computing the vector of moments from the actual data and simulated data.\nIf one of your moments is an AR1 coefficient, use the Han and Philips method at the end of Toni’s slides from today.\n\n\n\nDay 3\n\nUse influence functions to estimate the covariance matrix for the moments you have chosen, clustering by firm.\nCompute the optimal SMM weight matrix.\nCode up the SMM routine.\nWrite the code for finding the parameter vector that minimizes the econometric score, i.e. the distance between the actual and simulated moments.\nChoose a minimizer that will avoid local minima, such as the simulated annealing minimization algorithm or particle swarm optimization.\n\n\n\nDay 4\n\nSMM estimator\nCompute your final parameter estimates and their standard errors. Do they make sense?\nHow well does the model fit the data? Compare the simulated and empirical moments.\nDoes the model fail the test of overidnentifying restrictions?\nWhat would be an interesting counterfactual experiment to run? How would you do it?"
+  }
+]

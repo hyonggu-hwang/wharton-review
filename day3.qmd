@@ -1,0 +1,18 @@
+---
+title: Day 3 - SMM
+---
+
+### Goals
+The goals for this day are to code up the SMM estimator. That is, use influence functions to estimate the covariance matrix for the moments, compute the optimal weight matrix, code up the estimator, and debug it. The deliverables are:
+
+- Use influence functions to estimate the covariance matrix for the moments you have chosen, clustering by firm.
+- Compute the optimal SMM weight matrix. 
+- Code up the SMM routine. 
+- Write the code for finding the parameter vector that minimizes the econometric score, i.e. the distance between the actual and simulated moments. 
+- Choose a minimizer that will avoid local minima, such as the simulated annealing minimization algorithm or particle swarm optimization. 
+
+### SMM Estimator
+
+### Optimizers
+
+### Weighting Matrix

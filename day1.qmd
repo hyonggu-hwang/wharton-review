@@ -1,0 +1,21 @@
+---
+title: Day 1 - Value Function Iteration
+---
+
+### Goals
+
+The goals for this day are to numerically solve the model and understand how it works, using the numerical techniques covered by Stephen Terry. 
+
+
+### Deliverables 
+
+- Plot the value function against the state variables. What is the intuition? 
+- Plot the policy function against the state variables. What is the intuition?
+- How do the two plots above change with the values of $\alpha$ and $\delta$?
+- Write a subroutine that takes the model's solution and parameters as inputs, then produces a simulated data set as output. 
+- Use the Tauchen (1986) method to discretize the state space.
+  
+### Comparative Statics
+
+### Sensitivity Analysis
+

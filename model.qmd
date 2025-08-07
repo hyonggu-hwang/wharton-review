@@ -1,0 +1,48 @@
+---
+title: The Model
+---
+
+The setting is an infinite-horizon, discrete-time environment in which a manager acts on behalf of shareholders to maximize the expected present value of their distributions. The firm uses capital in a decreasing-returns technology to generate operating income according to $zK^{\alpha}$, where $K$ is the capital stock, $z$ is a profitability shock, and $\alpha < 1$ governs the degree of returns to scale.
+
+The profitability shock $z$ is log-normally distributed and follows the process:
+$$
+    \ln(z') = \rho \ln(z) + \sigma \varepsilon', \quad \varepsilon' \sim \mathcal{N}(0, 1)
+$$
+
+Each period, the firm chooses investment $I$, which is defined by a standard capital accumulation identity:
+$$
+K' = (1 - \delta)K + I
+$$
+
+The price of capital goods is normalized to one. The firm’s cash flow, $E^*(K, K', z)$, is its operating income minus its expenditure on investment:
+
+<!-- $$E^*(K, K', z) = zK^{\alpha} - K' + (1 - \delta)K$$ -->
+$$
+    \underbrace{E^*(K, K', z)}_{\text{Internal cash flow}} = \underbrace{zK^{\alpha}}_{\text{Income}} - \underbrace{(K' - (1 - \delta)K)}_{\text{Investment}}
+$$
+
+Cash flows to shareholders, $E(K, K', z)$, are defined in terms of the firm’s (internal) cash flows $E^*(K, K', z)$. A positive firm cash flow is distributed to its stockholders, while a negative cash flow implies that the firm instead obtains funds from shareholders. In this case, the firm pays a linear cost $\lambda$. Thus:
+
+::: {.column-margin}
+The $E$ function can also be thought of as the firm's per-period return function. 
+:::
+
+$$
+\begin{align*}
+    E(K, K', z) = 
+    \begin{cases}
+    E^* & \text{if } E^* \geq 0 \\
+    E^*(1 + \lambda) & \text{if } E^* < 0
+    \end{cases}
+\end{align*}
+$$
+
+Having defined cash flows, we can now state the firm’s dynamic programming problem:
+$$
+\begin{aligned}
+    \Pi(K, z) = & \max_{K'} \left\{ E(K, K', z) + \beta \; \mathbb{E}[\Pi(K', z')] \right\} \\
+            &\text{s.t.} \quad K' = (1 - \delta)K + I
+\end{aligned}
+$$
+
+Notice that this optimization problem does not have a closed-form solution, because of the non-linearity introduced by the cash flow function $E(K, K', z)$. Therefore, we will solve the problem numerically using value function iteration.

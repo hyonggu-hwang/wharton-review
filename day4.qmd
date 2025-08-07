@@ -1,0 +1,20 @@
+---
+title: Day 4 - Overidentification Test
+---
+
+### Goals
+The goals for this day are to finish coding up the SMM estimator, run it, and also perform the test of overidentifying restrictions and counterfactual analyses. The deliverables are:
+
+- SMM estimator
+- Compute your final parameter estimates and their standard errors. Do they make sense?
+- How well does the model fit the data? Compare the simulated and empirical moments. 
+- Does the model fail the test of overidnentifying restrictions?
+- What would be an interesting counterfactual experiment to run? How would you do it?
+
+### Standard Errors
+
+### Overidentification Test
+
+### Model Fit
+
+### Counterfactuals 
