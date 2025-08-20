@@ -1,0 +1,35 @@
+---
+title: Project Overview
+---
+
+### Day 1
+
+- Plot the value function against the state variables. What is the intuition? 
+- Plot the policy function against the state variables. What is the intuition?
+- How do the two plots above change with the values of $\alpha$ and $\delta$?
+- Write a subroutine that takes the model's solution and parameters as inputs, then produces a simulated data set as output. 
+- Use the Tauchen (1986) method to discretize the state space.
+
+### Day 2
+
+- Which features of the data will you ask the model to fit? These features may include means, variances, regression coefficients, or correlations.
+- Explain which moment or moments are most important for identifying each model parameter. Create a table showing how each simulated moment changes as you perturb $\alpha$ and $\delta$.
+- Downlad the data and read the documentation. The data set contains cleaned Compustat data on non-financial firms from 1971 - 2016. These variables should give you a hint about the types of moments that will work well.
+- Write a subroutine for computing the vector of moments from the actual data and simulated data. 
+- If one of your moments is an AR1 coefficient, use the Han and Philips method at the end of Toni's slides from today. 
+
+### Day 3
+
+- Use influence functions to estimate the covariance matrix for the moments you have chosen, clustering by firm.
+- Compute the optimal SMM weight matrix. 
+- Code up the SMM routine. 
+- Write the code for finding the parameter vector that minimizes the econometric score, i.e. the distance between the actual and simulated moments. 
+- Choose a minimizer that will avoid local minima, such as the simulated annealing minimization algorithm or particle swarm optimization. 
+
+### Day 4
+
+- SMM estimator
+- Compute your final parameter estimates and their standard errors. Do they make sense?
+- How well does the model fit the data? Compare the simulated and empirical moments. 
+- Does the model fail the test of overidnentifying restrictions?
+- What would be an interesting counterfactual experiment to run? How would you do it?

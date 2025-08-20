@@ -1,0 +1,22 @@
+---
+title: Wharton 2025 Summer School
+subtitle: Structural Estimation in Corporate Finance
+author: Hyong-gu Hwang
+date: August 5, 2025
+---
+
+---
+
+This site contains my solutions to the project assignment from the Wharton summer school. 
+
+The course was taught by Toni Whited, Luke Taylor, and Stephen Terry. 
+
+<!-- 💼 [Dropbox Course Folder](https://www.dropbox.com/scl/fo/eb1kfpv844bqblso1tl94/AFw_OX98l26oShbGX3FDogc?rlkey=iqpwk1l2rwaccn6hnlb8ywdlb&st=fua5lh4v&dl=0) -->
+
+🗓️ [Program Schedule](https://rodneywhitecenter.wharton.upenn.edu/program-schedule/)
+
+Use the top menu bar to navigate to different sections:
+
+- *Model* describes the dynamic model we are estimating.
+- *Project* provides the project instructions and desired deliverables for each day.
+- *Functions* contains the key functions used in the estimation

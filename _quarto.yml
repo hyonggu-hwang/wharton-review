@@ -1,0 +1,43 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Structural 2025"
+  navbar:
+    left:
+      # - href: index.qmd
+      #   text: Home
+      - href: model.qmd
+        text: Model
+      - href: day0.qmd
+        text: Project
+      - href: functions.qmd
+        text: Functions
+      - href: day1.qmd
+        text: Day 1
+      - href: day2.qmd
+        text: Day 2
+      - href: day3.qmd
+        text: Day 3
+      - href: day4.qmd
+        text: Day 4
+
+
+format:
+  html:
+    theme: 
+      light: minty
+      dark: darkly
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    toc-expand: true
+    code-fold: show
+    code-tools: true
+    code-block-bg: true
+    code-block-border-left: "#85929E"
+    embed-resources: true
+    html-math-method: mathjax
+execute:
+  debug: true

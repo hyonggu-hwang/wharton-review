@@ -1,0 +1,18 @@
+---
+title: Day 2 - Value Function Iteration
+---
+
+### Goals
+The goals for this day to develop an identification strategy, choose features of the data to target in the estimation, and write code for computing those features in both the actual and simulated data. Set $\beta = 0.96$, $\rho = 0.75$, $\sigma = 0.30$, and $\lambda = 0.05$. The deliverables are:
+
+- Which features of the data will you ask the model to fit? These features may include means, variances, regression coefficients, or correlations.
+- Explain which moment or moments are most important for identifying each model parameter. Create a table showing how each simulated moment changes as you perturb $\alpha$ and $\delta$.
+- Downlad the data and read the documentation. The data set contains cleaned Compustat data on non-financial firms from 1971 - 2016. These variables should give you a hint about the types of moments that will work well.
+- Write a subroutine for computing the vector of moments from the actual data and simulated data. 
+- If one of your moments is an AR1 coefficient, use the Han and Philips method at the end of Toni's slides from today. 
+
+### Moment Selection
+
+### Sensitivity of Moments
+
+### Empirical Data
