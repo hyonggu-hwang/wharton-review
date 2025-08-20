@@ -1,11 +1,7 @@
 project:
   type: website
   output-dir: docs
-
-format:
-  html:
-    polyfill: false
-    
+  
 website:
   title: "Structural 2025"
   navbar:
@@ -30,6 +26,7 @@ website:
 
 format:
   html:
+    polyfill: false
     theme: 
       light: minty
       dark: darkly
