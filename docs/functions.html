@@ -4832,7 +4832,7 @@ window.Quarto = {
 
 <p>The goal of this section is to describe the core functions and document the way Toni organized her code. The functions can largely be divded into three categories. First, the <em>model solver</em> discretizes the state space, sets up the transition matrix, and solves the model. Second, the <em>simulation subroutines</em> simulate the model and collect statistics. Finally, the <em>estimation</em> prepares the data for estimation and runs the estimation routine.</p>
 <p>These are some set-ups that will be necessary for the code to run.</p>
-<div id="6748bd79" class="cell" data-execution_count="2">
+<div id="e72d8827" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Think about which file to include this code in eventually.</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Random</span>, <span class="bu">Distributions</span>, <span class="bu">LinearAlgebra</span>, <span class="bu">Plots</span>, <span class="bu">Statistics</span>, <span class="bu">Printf</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -4844,7 +4844,7 @@ window.Quarto = {
 <p>Toni has a code script for almost every single function – this is way too many files! It would be better to group them either into (1) fewer files containing multiple functions, or into (2) separate sub-folders containing individual functions. But to be fair, her readme file is very useful.</p>
 </div></div><p>The code file <code>valfun.jl</code> performs the VFI.</p>
 <p>A separate file called <code>collectfunctions.jl</code> calls the above <code>valfun.jl</code> and performs some plotting, interpolation, simulation, and moment generation. To see the entire list of relevant files, please unfold the following code block.</p>
-<div id="225bb1ca" class="cell" data-execution_count="3">
+<div id="d30b9b0d" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># # ============ Stuff that goes into VFI ====================</span></span>
@@ -4888,7 +4888,7 @@ window.Quarto = {
     \ln(z&#39;) = \rho \ln(z) + \sigma \varepsilon&#39;, \quad \varepsilon&#39; \sim \mathcal{N}(0, 1)
 \]</span></p>
 <p>Using the Tauchen method, we can approximate this continuous state space with a discrete Markov chain. The following function implements the Tauchen method to generate a grid of <span class="math inline">\(z\)</span> values and the corresponding transition probabilities. The input parameters for this function are: the autocorrelation <code>ρ = 0.7</code>, intercept of the AR1 <code>μ = 0</code>, standard deviation of the residual <code>σ = 0.2</code>, number of standard deviations <code>q = 3</code>, and the number of grid points <code>N_z = 41</code>.</p>
-<div id="27190219" class="cell" data-execution_count="4">
+<div id="849df899" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">tauchen</span>(mew<span class="op">::</span><span class="dt">Float64</span>, sigma<span class="op">::</span><span class="dt">Float64</span>, rho<span class="op">::</span><span class="dt">Float64</span>, znum<span class="op">::</span><span class="dt">Int</span>, q<span class="op">::</span><span class="dt">Float64</span>)</span>
@@ -4920,7 +4920,7 @@ window.Quarto = {
 </details>
 </div>
 <p>The output is a vector of <span class="math inline">\(z\)</span> values and a matrix of transition probabilities. Throughout the code, we refer to them as <code>z_grid</code> and <code>trans</code>, respectively.</p>
-<div id="9d37cd07" class="cell" data-execution_count="5">
+<div id="62d70a3e" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Tauchen parameters</span></span>
@@ -4935,14 +4935,14 @@ window.Quarto = {
 </details>
 </div>
 <p>We discretize the <span class="math inline">\(z\)</span> shock to 41 points.</p>
-<div id="d1ae940b" class="cell" data-execution_count="6">
+<div id="1955d223" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(z_grid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[0.4316379803912925, 0.45015664900394275, 0.46946982853260255, 0.48961160607115856, 0.5106175311603266, 0.5325246785313611, 0.5553717135416735, 0.579198960417851, 0.6040484734265217, 0.6299641110986802, 0.656991613638479, 0.6851786836531056, 0.7145750703462349, 0.7452326573236532, 0.7772055541660273, 0.8105501919304436, 0.8453254227492717, 0.8815926237021424, 0.9194158051443708, 0.9588617236830193, 1.0, 1.0429032417301707, 1.0876471716112988, 1.1343107611320749, 1.182976369914058, 1.2337298910735608, 1.2866609028200269, 1.3418628265584742, 1.3994330917750424, 1.4594733079966673, 1.52208944412838, 1.5873920154847612, 1.6554962788456467, 1.7265224358803595, 1.8005958452994977, 1.877847244108723, 1.9584129783550546, 2.0424352437729247, 2.1300623367547344, 2.2214489160888555, 2.316756275927041]</code></pre>
 </div>
 </div>
 <p>The transition matrix is a 41 x 41 matrix, where element <span class="math inline">\((i,j)\)</span> represents the probability of moving from state <span class="math inline">\(z_i\)</span> to state <span class="math inline">\(z_j\)</span>.</p>
-<div id="1efe3e18" class="cell" data-execution_count="7">
+<div id="d34ce543" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">size</span>(trans)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="7">
 <pre><code>(41, 41)</code></pre>
@@ -4950,7 +4950,7 @@ window.Quarto = {
 </div>
 <p>Next, we discretize the capital stock space, so that later on, our policy function contains integers indexing different <span class="math inline">\(K\)</span> values. The upper and lower bounds on <span class="math inline">\(K\)</span> are obtained by plugging in the minimum and maximum values of <span class="math inline">\(z\)</span> into the steady state equation. Note that the Euler equation is given as: <span class="math display">\[ K = (\frac{r+δ}{αz})^{1-α}\]</span> which provides solutions to the equation that sets the marginal product of capital equal to the user cost of capital.</p>
 <p>We discretize <span class="math inline">\(K\)</span> into 501 points. Here is an example from the <code>valfunclunky</code> code script, where the risk free rate rate is 4%, capital depreciation rate <code>δ = 0.15</code>, curvature parameter <code>α = 0.70</code>, and equity adjustment cost <code>λ = 0.1</code>.</p>
-<div id="876b5550" class="cell" data-execution_count="8">
+<div id="32b40abe" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Dimensions</span></span>
@@ -5008,7 +5008,7 @@ window.Quarto = {
     E^*(K, K&#39;, z) = zK^{\alpha} - (K&#39; - (1 - \delta)K).
 \]</span></p>
 <p>The profit function has three input parameters: current capital stock <code>K</code>, next period’s capital stock <code>K&#39;</code>, and profitability shock <code>z</code>. Since these variables have all been discretized, we can fully capture the profit function in a 3D array. The following code fills in this array with the profit function values for different <code>(z, K, K&#39;)</code> combinations.</p>
-<div id="c37f98c6" class="cell" data-execution_count="9">
+<div id="29f35caa" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize profit array</span></span>

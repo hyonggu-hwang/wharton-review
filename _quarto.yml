@@ -2,6 +2,10 @@ project:
   type: website
   output-dir: docs
 
+format:
+  html:
+    polyfill: false
+    
 website:
   title: "Structural 2025"
   navbar:
