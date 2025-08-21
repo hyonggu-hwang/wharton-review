@@ -1,8 +1,12 @@
 ---
 title: Key Functions
-execute:
-  kernel: quarto-py
 ---
+
+```{julia}
+#| setup: true
+#| echo: false
+import Pkg; Pkg.activate(@__DIR__)
+```
 
 ```{julia}
 #| code-fold: false

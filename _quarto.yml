@@ -41,5 +41,7 @@ format:
     code-block-border-left: "#85929E"
     embed-resources: true
     html-math-method: mathjax
+
 execute:
-  debug: true
+  freeze: auto
+  kernel: "julia-1.11-_notebook_-1.11"
