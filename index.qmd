@@ -2,7 +2,7 @@
 title: Wharton 2025 Summer School
 subtitle: Structural Estimation in Corporate Finance
 author: Hyong-gu Hwang
-date: August 5, 2025
+date: August 15, 2025
 ---
 
 ---
