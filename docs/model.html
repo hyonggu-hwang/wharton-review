@@ -4817,7 +4817,9 @@ window.Quarto = {
 </header>
 
 
+<!-- where $R(\cdot)$ corresponds to the profit function that we had denoted $E(\cdot)$; $s$ is the endogenous state variable $K$; and $x$ is the exogenous state $z$. -->
 <p>The setting is an infinite-horizon, discrete-time environment in which a manager acts on behalf of shareholders to maximize the expected present value of their distributions. The firm uses capital in a decreasing-returns technology to generate operating income according to <span class="math inline">\(zK^{\alpha}\)</span>, where <span class="math inline">\(K\)</span> is the capital stock, <span class="math inline">\(z\)</span> is a profitability shock, and <span class="math inline">\(\alpha &lt; 1\)</span> governs the degree of returns to scale.</p>
+<p>Note that <span class="math inline">\(K&#39;\)</span> is the control, and <span class="math inline">\(K\)</span> and <span class="math inline">\(z\)</span> are state variables. Variables like <span class="math inline">\(K\)</span> are often called an <em>endogenous</em> state in that it is determined by the agent’s choice, whereas <span class="math inline">\(z\)</span> is an <em>exogenous</em> state in the sense that it is a purely stochastic shock.</p>
 <p>The profitability shock <span class="math inline">\(z\)</span> is log-normally distributed and follows the process: <span class="math display">\[
     \ln(z&#39;) = \rho \ln(z) + \sigma \varepsilon&#39;, \quad \varepsilon&#39; \sim \mathcal{N}(0, 1)
 \]</span></p>
@@ -5441,50 +5443,54 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> The Model</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>The setting is an infinite-horizon, discrete-time environment in which a manager acts on behalf of shareholders to maximize the expected present value of their distributions. The firm uses capital in a decreasing-returns technology to generate operating income according to $zK^{\alpha}$, where $K$ is the capital stock, $z$ is a profitability shock, and $\alpha &lt; 1$ governs the degree of returns to scale.</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- where $R(\cdot)$ corresponds to the profit function that we had denoted $E(\cdot)$; $s$ is the endogenous state variable $K$; and $x$ is the exogenous state $z$. --&gt;</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>The profitability shock $z$ is log-normally distributed and follows the process:</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    \ln(z&#39;) = \rho \ln(z) + \sigma \varepsilon&#39;, \quad \varepsilon&#39; \sim \mathcal{N}(0, 1)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>Each period, the firm chooses investment $I$, which is defined by a standard capital accumulation identity:</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>K&#39; = (1 - \delta)K + I</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>The price of capital goods is normalized to one. The firm’s cash flow, $E^*(K, K&#39;, z)$, is its operating income minus its expenditure on investment:</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- $$E^*(K, K&#39;, z) = zK^{\alpha} - K&#39; + (1 - \delta)K$$ --&gt;</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    \underbrace{E^*(K, K&#39;, z)}_{\text{Internal cash flow}} = \underbrace{zK^{\alpha}}_{\text{Income}} - \underbrace{(K&#39; - (1 - \delta)K)}_{\text{Investment}}</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>Cash flows to shareholders, $E(K, K&#39;, z)$, are defined in terms of the firm’s (internal) cash flows $E^*(K, K&#39;, z)$. A positive firm cash flow is distributed to its stockholders, while a negative cash flow implies that the firm instead obtains funds from shareholders. In this case, the firm pays a linear cost $\lambda$. Thus:</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>::: {.column-margin}</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>The $E$ function can also be thought of as the firm&#39;s per-period return function. </span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>The setting is an infinite-horizon, discrete-time environment in which a manager acts on behalf of shareholders to maximize the expected present value of their distributions. The firm uses capital in a decreasing-returns technology to generate operating income according to $zK^{\alpha}$, where $K$ is the capital stock, $z$ is a profitability shock, and $\alpha &lt; 1$ governs the degree of returns to scale.</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>Note that $K&#39;$ is the control, and $K$ and $z$ are state variables. Variables like $K$ are often called an *endogenous* state in that it is determined by the agent&#39;s choice, whereas $z$ is an *exogenous* state in the sense that it is a purely stochastic shock.</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>The profitability shock $z$ is log-normally distributed and follows the process:</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    \ln(z&#39;) = \rho \ln(z) + \sigma \varepsilon&#39;, \quad \varepsilon&#39; \sim \mathcal{N}(0, 1)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>Each period, the firm chooses investment $I$, which is defined by a standard capital accumulation identity:</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>K&#39; = (1 - \delta)K + I</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>The price of capital goods is normalized to one. The firm’s cash flow, $E^*(K, K&#39;, z)$, is its operating income minus its expenditure on investment:</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- $$E^*(K, K&#39;, z) = zK^{\alpha} - K&#39; + (1 - \delta)K$$ --&gt;</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    \underbrace{E^*(K, K&#39;, z)}_{\text{Internal cash flow}} = \underbrace{zK^{\alpha}}_{\text{Income}} - \underbrace{(K&#39; - (1 - \delta)K)}_{\text{Investment}}</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>Cash flows to shareholders, $E(K, K&#39;, z)$, are defined in terms of the firm’s (internal) cash flows $E^*(K, K&#39;, z)$. A positive firm cash flow is distributed to its stockholders, while a negative cash flow implies that the firm instead obtains funds from shareholders. In this case, the firm pays a linear cost $\lambda$. Thus:</span>
 <span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>\begin{align*}</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    E(K, K&#39;, z) = </span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    \begin{cases}</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    E^* &amp; \text{if } E^* \geq 0 <span class="sc">\\</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    E^*(1 + \lambda) &amp; \text{if } E^* &lt; 0</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    \end{cases}</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>\end{align*}</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>Having defined cash flows, we can now state the firm’s dynamic programming problem:</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>\begin{aligned}</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    \Pi(K, z) = &amp; \max_{K&#39;} \left<span class="sc">\{</span> E(K, K&#39;, z) + \beta \; \mathbb{E}<span class="co">[</span><span class="ot">\Pi(K&#39;, z&#39;)</span><span class="co">]</span> \right<span class="sc">\}</span> <span class="sc">\\</span></span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>            &amp;\text{s.t.} \quad K&#39; = (1 - \delta)K + I</span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>\end{aligned}</span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>Notice that this optimization problem does not have a closed-form solution, because of the non-linearity introduced by the cash flow function $E(K, K&#39;, z)$. Therefore, we will solve the problem numerically using value function iteration.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>::: {.column-margin}</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>The $E$ function can also be thought of as the firm&#39;s per-period return function. </span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>\begin{align*}</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    E(K, K&#39;, z) = </span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    \begin{cases}</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    E^* &amp; \text{if } E^* \geq 0 <span class="sc">\\</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    E^*(1 + \lambda) &amp; \text{if } E^* &lt; 0</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    \end{cases}</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>\end{align*}</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>Having defined cash flows, we can now state the firm’s dynamic programming problem:</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>\begin{aligned}</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    \Pi(K, z) = &amp; \max_{K&#39;} \left<span class="sc">\{</span> E(K, K&#39;, z) + \beta \; \mathbb{E}<span class="co">[</span><span class="ot">\Pi(K&#39;, z&#39;)</span><span class="co">]</span> \right<span class="sc">\}</span> <span class="sc">\\</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>            &amp;\text{s.t.} \quad K&#39; = (1 - \delta)K + I</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>\end{aligned}</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>Notice that this optimization problem does not have a closed-form solution, because of the non-linearity introduced by the cash flow function $E(K, K&#39;, z)$. Therefore, we will solve the problem numerically using value function iteration.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

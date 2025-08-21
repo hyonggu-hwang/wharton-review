@@ -2,7 +2,11 @@
 title: The Model
 ---
 
+<!-- where $R(\cdot)$ corresponds to the profit function that we had denoted $E(\cdot)$; $s$ is the endogenous state variable $K$; and $x$ is the exogenous state $z$. -->
+
 The setting is an infinite-horizon, discrete-time environment in which a manager acts on behalf of shareholders to maximize the expected present value of their distributions. The firm uses capital in a decreasing-returns technology to generate operating income according to $zK^{\alpha}$, where $K$ is the capital stock, $z$ is a profitability shock, and $\alpha < 1$ governs the degree of returns to scale.
+
+Note that $K'$ is the control, and $K$ and $z$ are state variables. Variables like $K$ are often called an *endogenous* state in that it is determined by the agent's choice, whereas $z$ is an *exogenous* state in the sense that it is a purely stochastic shock.
 
 The profitability shock $z$ is log-normally distributed and follows the process:
 $$

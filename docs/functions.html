@@ -4798,6 +4798,7 @@ window.Quarto = {
   <li><a href="#discretization" id="toc-discretization" class="nav-link" data-scroll-target="#discretization">Discretization</a></li>
   <li><a href="#profit-function" id="toc-profit-function" class="nav-link" data-scroll-target="#profit-function">Profit Function</a></li>
   <li><a href="#bellman-equation" id="toc-bellman-equation" class="nav-link" data-scroll-target="#bellman-equation">Bellman Equation</a></li>
+  <li><a href="#value-function-iteration" id="toc-value-function-iteration" class="nav-link" data-scroll-target="#value-function-iteration">Value Function Iteration</a></li>
   </ul></li>
   <li><a href="#simulation" id="toc-simulation" class="nav-link" data-scroll-target="#simulation">2. Simulation</a></li>
   <li><a href="#estimation" id="toc-estimation" class="nav-link" data-scroll-target="#estimation">3. Estimation</a></li>
@@ -4832,7 +4833,7 @@ window.Quarto = {
 
 <p>The goal of this section is to describe the core functions and document the way Toni organized her code. The functions can largely be divded into three categories. First, the <em>model solver</em> discretizes the state space, sets up the transition matrix, and solves the model. Second, the <em>simulation subroutines</em> simulate the model and collect statistics. Finally, the <em>estimation</em> prepares the data for estimation and runs the estimation routine.</p>
 <p>These are some set-ups that will be necessary for the code to run.</p>
-<div id="f95adf87" class="cell" data-execution_count="3">
+<div id="0f3038dc" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Think about which file to include this code in eventually.</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Random</span>, <span class="bu">Distributions</span>, <span class="bu">LinearAlgebra</span>, <span class="bu">Plots</span>, <span class="bu">Statistics</span>, <span class="bu">Printf</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -4844,7 +4845,7 @@ window.Quarto = {
 <p>Toni has a code script for almost every single function – this is way too many files! It would be better to group them either into (1) fewer files containing multiple functions, or into (2) separate sub-folders containing individual functions. But to be fair, her readme file is very useful.</p>
 </div></div><p>The code file <code>valfun.jl</code> performs the VFI.</p>
 <p>A separate file called <code>collectfunctions.jl</code> calls the above <code>valfun.jl</code> and performs some plotting, interpolation, simulation, and moment generation. To see the entire list of relevant files, please unfold the following code block.</p>
-<div id="09f87317" class="cell" data-execution_count="4">
+<div id="e6596509" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Show Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># # ============ Stuff that goes into VFI ====================</span></span>
@@ -4888,7 +4889,7 @@ window.Quarto = {
     \ln(z&#39;) = \rho \ln(z) + \sigma \varepsilon&#39;, \quad \varepsilon&#39; \sim \mathcal{N}(0, 1)
 \]</span></p>
 <p>Using the Tauchen method, we can approximate this continuous state space with a discrete Markov chain. The following function implements the Tauchen method to generate a grid of <span class="math inline">\(z\)</span> values and the corresponding transition probabilities. The input parameters for this function are: the autocorrelation <code>ρ = 0.7</code>, intercept of the AR1 <code>μ = 0</code>, standard deviation of the residual <code>σ = 0.2</code>, number of standard deviations <code>q = 3</code>, and the number of grid points <code>N_z = 41</code>.</p>
-<div id="bb347025" class="cell" data-execution_count="5">
+<div id="f832f94d" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Show Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">tauchen</span>(mew<span class="op">::</span><span class="dt">Float64</span>, sigma<span class="op">::</span><span class="dt">Float64</span>, rho<span class="op">::</span><span class="dt">Float64</span>, znum<span class="op">::</span><span class="dt">Int</span>, q<span class="op">::</span><span class="dt">Float64</span>)</span>
@@ -4920,7 +4921,7 @@ window.Quarto = {
 </details>
 </div>
 <p>The output is a vector of <span class="math inline">\(z\)</span> values and a matrix of transition probabilities. Throughout the code, we refer to them as <code>z_grid</code> and <code>trans</code>, respectively.</p>
-<div id="a16c2d79" class="cell" data-execution_count="6">
+<div id="7b45d3d1" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Show Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Tauchen parameters</span></span>
@@ -4935,22 +4936,22 @@ window.Quarto = {
 </details>
 </div>
 <p>We discretize the <span class="math inline">\(z\)</span> shock to 41 points.</p>
-<div id="99a2512e" class="cell" data-execution_count="7">
+<div id="3b855245" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(z_grid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[0.4316379803912925, 0.45015664900394275, 0.46946982853260255, 0.48961160607115856, 0.5106175311603266, 0.5325246785313611, 0.5553717135416735, 0.579198960417851, 0.6040484734265217, 0.6299641110986802, 0.656991613638479, 0.6851786836531056, 0.7145750703462349, 0.7452326573236532, 0.7772055541660273, 0.8105501919304436, 0.8453254227492717, 0.8815926237021424, 0.9194158051443708, 0.9588617236830193, 1.0, 1.0429032417301707, 1.0876471716112988, 1.1343107611320749, 1.182976369914058, 1.2337298910735608, 1.2866609028200269, 1.3418628265584742, 1.3994330917750424, 1.4594733079966673, 1.52208944412838, 1.5873920154847612, 1.6554962788456467, 1.7265224358803595, 1.8005958452994977, 1.877847244108723, 1.9584129783550546, 2.0424352437729247, 2.1300623367547344, 2.2214489160888555, 2.316756275927041]</code></pre>
 </div>
 </div>
 <p>The transition matrix is a 41 x 41 matrix, where element <span class="math inline">\((i,j)\)</span> represents the probability of moving from state <span class="math inline">\(z_i\)</span> to state <span class="math inline">\(z_j\)</span>.</p>
-<div id="f9a2f3fe" class="cell" data-execution_count="8">
+<div id="b30d6a26" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">size</span>(trans)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="7">
 <pre><code>(41, 41)</code></pre>
 </div>
 </div>
-<p>Next, we discretize the capital stock space, so that later on, our policy function contains integers indexing different <span class="math inline">\(K\)</span> values. The upper and lower bounds on <span class="math inline">\(K\)</span> are obtained by plugging in the minimum and maximum values of <span class="math inline">\(z\)</span> into the steady state equation. Note that the Euler equation is given as: <span class="math display">\[ K = (\frac{r+δ}{αz})^{1-α}\]</span> which provides solutions to the equation that sets the marginal product of capital equal to the user cost of capital.</p>
+<p>Next, we discretize the capital stock space, so that later on, our policy function contains integers indexing different <span class="math inline">\(K\)</span> values. The upper and lower bounds on <span class="math inline">\(K\)</span> are obtained by plugging in the minimum and maximum values of <span class="math inline">\(z\)</span> into the steady state equation. The Euler equation is given as: <span class="math display">\[ K = (\frac{r+δ}{αz})^{1-α}\]</span> which provides solutions to the equation that sets the marginal product of capital equal to the user cost of capital.</p>
 <p>We discretize <span class="math inline">\(K\)</span> into 501 points. Here is an example from the <code>valfunclunky</code> code script, where the risk free rate rate is 4%, capital depreciation rate <code>δ = 0.15</code>, curvature parameter <code>α = 0.70</code>, and equity adjustment cost <code>λ = 0.1</code>.</p>
-<div id="edbadcb1" class="cell" data-execution_count="9">
+<div id="f318efca" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Show Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Dimensions</span></span>
@@ -5008,7 +5009,7 @@ window.Quarto = {
     E^*(K, K&#39;, z) = zK^{\alpha} - (K&#39; - (1 - \delta)K).
 \]</span></p>
 <p>The profit function has three input parameters: current capital stock <code>K</code>, next period’s capital stock <code>K&#39;</code>, and profitability shock <code>z</code>. Since these variables have all been discretized, we can fully capture the profit function in a 3D array. The following code fills in this array with the profit function values for different <code>(z, K, K&#39;)</code> combinations.</p>
-<div id="25ca4591" class="cell" data-execution_count="10">
+<div id="04971417" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Show Code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize profit array</span></span>
@@ -5028,7 +5029,7 @@ window.Quarto = {
 <span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>                skale <span class="op">*</span> z_grid[iz] <span class="op">*</span> k_grid[ik]<span class="op">^</span>α <span class="op">-</span></span>
 <span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>                (k_pol_grid[ik_pol] <span class="op">-</span> (<span class="fl">1.0</span> <span class="op">-</span> δ) <span class="op">*</span> k_grid[ik])</span>
 <span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>            <span class="co"># If negative, pay financing costs λ%    </span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Profit = financing costs in addition if negative    </span></span>
 <span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> profit[iz, ik, ik_pol] <span class="op">&lt;</span> <span class="fl">0.0</span></span>
 <span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>                profit[iz, ik, ik_pol] <span class="op">=</span></span>
 <span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>                    profit[iz, ik, ik_pol] <span class="op">*</span> (<span class="fl">1.0</span> <span class="op">+</span> λ)</span>
@@ -5043,15 +5044,39 @@ window.Quarto = {
 <pre><code>Size of the profit array is (41, 501, 501)</code></pre>
 </div>
 </div>
+<p>We have successfully computed the profit function.</p>
 
 <div class="no-row-height column-margin column-container"><div class>
 <p>A nested parallel loop likely causes too much overhead, so I only parallelize the outer loop here.</p>
 </div></div></section>
-<section id="bellman-equation" class="level2">
+<section id="bellman-equation" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="bellman-equation">Bellman Equation</h2>
-<p>Next, we formulate the Bellman equation and numerically solve the maximization problem. The key relevant files are <code>valfun.jl</code> and <code>maxbellman.jl</code>, and there are a few more files that implement more advanced computational methods. <code>inbetween.jl</code> is for interpolation in a set-up where policy grid is finer than the capital grid (i.e. <code>N_k_pol</code> &gt; <code>N_k</code>). <code>howard.jl</code> implements Howard’s policy improvement algorithm, which is a more efficient way to solve the Bellman equation in earlier iterations of the VFI and when the policy function has already converged. <code>update.jl</code> uses McQueen-Porteus algorithm to update the policy and value functions. More details can be found in the summer school slides.</p>
+<p>Next, we formulate the Bellman equation and numerically solve the maximization problem. The key relevant files are <code>valfun.jl</code> and <code>maxbellman.jl</code>, and there are a few more files that implement more advanced computational methods:</p>
+<ul>
+<li><code>inbetween.jl</code>: performs interpolation in a set-up where policy grid is finer than the capital grid (i.e. <code>N_k_pol</code> &gt; <code>N_k</code>)</li>
+<li><code>howard.jl</code>: implements Howard’s policy improvement algorithm, which is a more efficient way to solve the Bellman equation in earlier iterations of the VFI and when the policy function has already converged</li>
+<li><code>update.jl</code>: implements McQueen-Porteus algorithm to update the policy and value functions.</li>
+</ul>
+<p>Using notation from summer school notes, we can write the Bellman equation as:</p>
+
+<div class="no-row-height column-margin column-container"><div class>
+<p>The lecture notes uses a different set of notations, where <span class="math inline">\(E\)</span> is <span class="math inline">\(R\)</span>, <span class="math inline">\(K\)</span> is <span class="math inline">\(s\)</span>, and <span class="math inline">\(z\)</span> is <span class="math inline">\(x\)</span>.</p>
+</div></div><p><span class="math display">\[ V(K,z) = \max_{K&#39; \in \Gamma(K,z)} \left[ R(K,z,K&#39;) + \beta \, \mathbb{E}_{z&#39;|z} \, V(K&#39;,z&#39;) \right] \]</span></p>
+<p>We already computed <span class="math inline">\(R(\cdot)\)</span> in the previous step, so let’s compute the expectation term. We take the expectation over <strong>all</strong> the next-period states <span class="math inline">\(z&#39;\)</span>, for <strong>each</strong> combination of the current state <span class="math inline">\(z\)</span> and the current capital stock <span class="math inline">\(K\)</span>. This gives us the next-period value function, which provides a mapping from <strong>all</strong> possible combinations of <span class="math inline">\(z&#39;\)</span> and <span class="math inline">\(K&#39;\)</span> to the .</p>
+<p>The value function is a 2D array of size <code>N_z x N_k</code>, where each element corresponds to the value of being in state <span class="math inline">\((z, K)\)</span>.</p>
+<p>The key here is to have the dimensions right: the value function is a 2D array of size <code>N_z x N_k</code>, and the transition matrix is a 2D array of size <code>N_z x N_z</code>. The following code implements the Bellman equation.</p>
+<div id="4f754cfd" class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>Show Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bellman equation</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="value-function-iteration" class="level2">
+<h2 class="anchored" data-anchor-id="value-function-iteration">Value Function Iteration</h2>
 <p>The core of the VFI is to keep updating the value function until it converges to a numerical maximum. To do so, we keep iterating on the Bellman equation until the maximum difference between the <em>current</em> and <em>previous</em> value function is less than a given tolerance level. So, at each iteration, we are really comparing the best value function we have found so far, against the next <em>candidate</em> maximum.</p>
-<p>The criter</p>
+<p>When calculating this difference between the current and previous value functions, we will use the supremum norm as a measure of distance (which is a standard practice). That is, if the maximum absolute difference is less than the tolerance level, we stop iterating. The following code implements this logic.</p>
+<!-- The criterion  -->
 </section>
 </section>
 <section id="simulation" class="level1">
@@ -5648,266 +5673,297 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class>
-<div class="sourceCode" id="cb13" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> Key Functions</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="in">#| setup: true</span></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="in">#| echo: false</span></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="in">import Pkg</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="in">Pkg.activate(@__DIR__, io=devnull)</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: false</span></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="in">#| output: true</span></span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>The goal of this section is to describe the core functions and document the way Toni organized her code. The functions can largely be divded into three categories. First, the *model solver* discretizes the state space, sets up the transition matrix, and solves the model. Second, the *simulation subroutines* simulate the model and collect statistics. Finally, the *estimation* prepares the data for estimation and runs the estimation routine.</span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>These are some set-ups that will be necessary for the code to run.</span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: false</span></span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a><span class="in">#| output: false</span></span>
-<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a><span class="in"># Think about which file to include this code in eventually.</span></span>
-<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a><span class="in">using Random, Distributions, LinearAlgebra, Plots, Statistics, Printf</span></span>
-<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="fu"># 1. Model Solver</span></span>
-<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>The goal in this part is to solve the dynamic model via value function iteration (VFI). The code organization is slightly redundant and chaotic in my humble opinion, so I include an overview here. </span>
-<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>::: {.column-margin}</span>
-<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>Toni has a code script for almost every single function -- this is way too many files! It would be better to group them either into (1) fewer files containing multiple functions, or into (2) separate sub-folders containing individual functions. But to be fair, her readme file is very useful.</span>
-<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>The code file <span class="in">`valfun.jl`</span> performs the VFI. </span>
-<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>A separate file called <span class="in">`collectfunctions.jl`</span> calls the above <span class="in">`valfun.jl`</span> and performs some plotting, interpolation, simulation, and moment generation. To see the entire list of relevant files, please unfold the following code block.</span>
-<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
-<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: true</span></span>
-<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a><span class="in">#| eval: false</span></span>
-<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a><span class="in"># # ============ Stuff that goes into VFI ====================</span></span>
-<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;makegrids.jl&quot;)          # makes the grids</span></span>
-<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;tauchen.jl&quot;)            # makes the transition matrix</span></span>
-<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;profit.jl&quot;)             # makes the profit function</span></span>
-<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;fillin.jl&quot;)             # interpolates the value function. Inefficient. You should make the weights only once. </span></span>
-<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;maxbellman.jl&quot;)         # finds the maximum of the bellman equation</span></span>
-<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;tinybellman.jl&quot;)        # finds the maximum of the bellman equation, within limited bounbds</span></span>
-<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;howard.jl&quot;)             #  Howard&#39;s policy improvement algorithm</span></span>
-<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;makepol.jl&quot;)            #  makes the policy function from the index policy function</span></span>
-<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;makeconst.jl&quot;)          #  renormalized the profit function</span></span>
-<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;ptrue.jl&quot;)              #  sets the true parameter values</span></span>
-<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;mew.jl&quot;)                #  makes the stationary distribution. </span></span>
-<span id="cb13-64"><a href="#cb13-64" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;inbetween.jl&quot;)          #  makes interpolation weights and indices</span></span>
-<span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;extract_parameters.jl&quot;) # little helper function to pull parameters out of a vector</span></span>
-<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;update.jl&quot;)             # updates the value function</span></span>
-<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a><span class="in"># # ============ VFI =========================================</span></span>
-<span id="cb13-69"><a href="#cb13-69" aria-hidden="true" tabindex="-1"></a><span class="in"># if settings.fast == true</span></span>
-<span id="cb13-70"><a href="#cb13-70" aria-hidden="true" tabindex="-1"></a><span class="in">#     include(&quot;valfun.jl&quot;)          # The fast version</span></span>
-<span id="cb13-71"><a href="#cb13-71" aria-hidden="true" tabindex="-1"></a><span class="in"># else</span></span>
-<span id="cb13-72"><a href="#cb13-72" aria-hidden="true" tabindex="-1"></a><span class="in">#     include(&quot;valfunslow.jl&quot;)      # The slow version</span></span>
-<span id="cb13-73"><a href="#cb13-73" aria-hidden="true" tabindex="-1"></a><span class="in"># end</span></span>
-<span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a><span class="in"># # ============ Plotting and simulation =====================</span></span>
-<span id="cb13-75"><a href="#cb13-75" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;plotstuff.jl&quot;)    # Self-explanatory</span></span>
-<span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;printstuff.jl&quot;)   # Self-explanatory</span></span>
-<span id="cb13-77"><a href="#cb13-77" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;simmodel.jl&quot;)     # Simulates the model. </span></span>
-<span id="cb13-78"><a href="#cb13-78" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;interpol.jl&quot;)     # Interpolates the value and policy functions</span></span>
-<span id="cb13-79"><a href="#cb13-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-80"><a href="#cb13-80" aria-hidden="true" tabindex="-1"></a><span class="in"># # ============Making moments ===============================</span></span>
-<span id="cb13-81"><a href="#cb13-81" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;momentgen.jl&quot;);   # wrapper</span></span>
-<span id="cb13-82"><a href="#cb13-82" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;makemoments.jl&quot;); # Self-explanatory</span></span>
-<span id="cb13-83"><a href="#cb13-83" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-84"><a href="#cb13-84" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-85"><a href="#cb13-85" aria-hidden="true" tabindex="-1"></a>The values for the compuational parameters are *separately* defined in <span class="in">`invest_mod.jl`</span>. Using these specific values, Toni then runs all of these files, in another file called <span class="in">`evalfun.jl`</span>. As the name implies, this is where the actual function evaluation is done. This produces the simulated moments for a single parameter combination $(\alpha, \delta)$ and the associated comparative statistics outputs.</span>
-<span id="cb13-86"><a href="#cb13-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-87"><a href="#cb13-87" aria-hidden="true" tabindex="-1"></a><span class="fu">## Discretization</span></span>
-<span id="cb13-88"><a href="#cb13-88" aria-hidden="true" tabindex="-1"></a>The relevant code files for this step are <span class="in">`tauchen.jl`</span> and <span class="in">`makegrids.jl`</span>. </span>
-<span id="cb13-89"><a href="#cb13-89" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-90"><a href="#cb13-90" aria-hidden="true" tabindex="-1"></a>Recall that the process that governs the evolution of shock $z$ is given as:</span>
-<span id="cb13-91"><a href="#cb13-91" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb13-92"><a href="#cb13-92" aria-hidden="true" tabindex="-1"></a>    \ln(z&#39;) = \rho \ln(z) + \sigma \varepsilon&#39;, \quad \varepsilon&#39; \sim \mathcal{N}(0, 1)</span>
-<span id="cb13-93"><a href="#cb13-93" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb13-94"><a href="#cb13-94" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-95"><a href="#cb13-95" aria-hidden="true" tabindex="-1"></a>Using the Tauchen method, we can approximate this continuous state space with a discrete Markov chain. The following function implements the Tauchen method to generate a grid of $z$ values and the corresponding transition probabilities. The input parameters for this function are: the autocorrelation <span class="in">`ρ = 0.7`</span>, intercept of the AR1 <span class="in">`μ = 0`</span>, standard deviation of the residual <span class="in">`σ = 0.2`</span>, number of standard deviations <span class="in">`q = 3`</span>, and the number of grid points <span class="in">`N_z = 41`</span>.</span>
-<span id="cb13-96"><a href="#cb13-96" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-99"><a href="#cb13-99" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
-<span id="cb13-100"><a href="#cb13-100" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: true</span></span>
-<span id="cb13-101"><a href="#cb13-101" aria-hidden="true" tabindex="-1"></a><span class="in">#| output: false</span></span>
-<span id="cb13-102"><a href="#cb13-102" aria-hidden="true" tabindex="-1"></a><span class="in">function tauchen(mew::Float64, sigma::Float64, rho::Float64, znum::Int, q::Float64)</span></span>
-<span id="cb13-103"><a href="#cb13-103" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-104"><a href="#cb13-104" aria-hidden="true" tabindex="-1"></a><span class="in">    zstar = mew / (1.0 - rho) #expected value of z</span></span>
-<span id="cb13-105"><a href="#cb13-105" aria-hidden="true" tabindex="-1"></a><span class="in">    sigmaz = sigma / sqrt(1.0 - rho^2) #stddev of z</span></span>
-<span id="cb13-106"><a href="#cb13-106" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-107"><a href="#cb13-107" aria-hidden="true" tabindex="-1"></a><span class="in">    z = zstar .+ collect(range(-q * sigmaz, stop=q * sigmaz, length=znum))</span></span>
-<span id="cb13-108"><a href="#cb13-108" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-109"><a href="#cb13-109" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-110"><a href="#cb13-110" aria-hidden="true" tabindex="-1"></a><span class="in">    trans = zeros(znum, znum)</span></span>
-<span id="cb13-111"><a href="#cb13-111" aria-hidden="true" tabindex="-1"></a><span class="in">    w = (z[2] - z[1])  #Note that all the points are equidistant by construction.</span></span>
-<span id="cb13-112"><a href="#cb13-112" aria-hidden="true" tabindex="-1"></a><span class="in">    for iz in 1:znum</span></span>
-<span id="cb13-113"><a href="#cb13-113" aria-hidden="true" tabindex="-1"></a><span class="in">        for izz in 1:znum</span></span>
-<span id="cb13-114"><a href="#cb13-114" aria-hidden="true" tabindex="-1"></a><span class="in">            binhi = (z[izz] - rho * z[iz] + w / 2.0) / sigma</span></span>
-<span id="cb13-115"><a href="#cb13-115" aria-hidden="true" tabindex="-1"></a><span class="in">            binlo = (z[izz] - rho * z[iz] - w / 2.0) / sigma</span></span>
-<span id="cb13-116"><a href="#cb13-116" aria-hidden="true" tabindex="-1"></a><span class="in">            if izz == 1</span></span>
-<span id="cb13-117"><a href="#cb13-117" aria-hidden="true" tabindex="-1"></a><span class="in">                trans[iz, izz] = cdf(Normal(), binhi)</span></span>
-<span id="cb13-118"><a href="#cb13-118" aria-hidden="true" tabindex="-1"></a><span class="in">            elseif izz == znum</span></span>
-<span id="cb13-119"><a href="#cb13-119" aria-hidden="true" tabindex="-1"></a><span class="in">                trans[iz, izz] = 1.0 - cdf(Normal(), binlo)</span></span>
-<span id="cb13-120"><a href="#cb13-120" aria-hidden="true" tabindex="-1"></a><span class="in">            else</span></span>
-<span id="cb13-121"><a href="#cb13-121" aria-hidden="true" tabindex="-1"></a><span class="in">                trans[iz, izz] = cdf(Normal(), binhi) - cdf(Normal(), binlo)</span></span>
-<span id="cb13-122"><a href="#cb13-122" aria-hidden="true" tabindex="-1"></a><span class="in">            end</span></span>
-<span id="cb13-123"><a href="#cb13-123" aria-hidden="true" tabindex="-1"></a><span class="in">        end</span></span>
-<span id="cb13-124"><a href="#cb13-124" aria-hidden="true" tabindex="-1"></a><span class="in">    end</span></span>
-<span id="cb13-125"><a href="#cb13-125" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-126"><a href="#cb13-126" aria-hidden="true" tabindex="-1"></a><span class="in">    return z::Vector{Float64}, trans::Matrix{Float64}</span></span>
-<span id="cb13-127"><a href="#cb13-127" aria-hidden="true" tabindex="-1"></a><span class="in">end</span></span>
-<span id="cb13-128"><a href="#cb13-128" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-129"><a href="#cb13-129" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-130"><a href="#cb13-130" aria-hidden="true" tabindex="-1"></a>The output is a vector of $z$ values and a matrix of transition probabilities. Throughout the code, we refer to them as <span class="in">`z_grid`</span> and <span class="in">`trans`</span>, respectively.</span>
-<span id="cb13-133"><a href="#cb13-133" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
-<span id="cb13-134"><a href="#cb13-134" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: true</span></span>
-<span id="cb13-135"><a href="#cb13-135" aria-hidden="true" tabindex="-1"></a><span class="in">#| output: true</span></span>
-<span id="cb13-136"><a href="#cb13-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-137"><a href="#cb13-137" aria-hidden="true" tabindex="-1"></a><span class="in"># Tauchen parameters</span></span>
-<span id="cb13-138"><a href="#cb13-138" aria-hidden="true" tabindex="-1"></a><span class="in">N_z = 41   # shock grid number</span></span>
-<span id="cb13-139"><a href="#cb13-139" aria-hidden="true" tabindex="-1"></a><span class="in">σ = 0.20   # SD of error term</span></span>
-<span id="cb13-140"><a href="#cb13-140" aria-hidden="true" tabindex="-1"></a><span class="in">μ = 0.0    # AR1 intercept</span></span>
-<span id="cb13-141"><a href="#cb13-141" aria-hidden="true" tabindex="-1"></a><span class="in">ρ = 0.70   # AR1 coefficient</span></span>
-<span id="cb13-142"><a href="#cb13-142" aria-hidden="true" tabindex="-1"></a><span class="in">q = 3.0    # 3 standard deviations for the z</span></span>
-<span id="cb13-143"><a href="#cb13-143" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-144"><a href="#cb13-144" aria-hidden="true" tabindex="-1"></a><span class="in">z_grid, trans = tauchen(μ, σ, ρ, N_z, q);</span></span>
-<span id="cb13-145"><a href="#cb13-145" aria-hidden="true" tabindex="-1"></a><span class="in">z_grid = exp.(z_grid);</span></span>
-<span id="cb13-146"><a href="#cb13-146" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-147"><a href="#cb13-147" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-148"><a href="#cb13-148" aria-hidden="true" tabindex="-1"></a>We discretize the $z$ shock to 41 points.</span>
-<span id="cb13-151"><a href="#cb13-151" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
-<span id="cb13-152"><a href="#cb13-152" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: false</span></span>
-<span id="cb13-153"><a href="#cb13-153" aria-hidden="true" tabindex="-1"></a><span class="in">#| output: true</span></span>
-<span id="cb13-154"><a href="#cb13-154" aria-hidden="true" tabindex="-1"></a><span class="in">print(z_grid)</span></span>
-<span id="cb13-155"><a href="#cb13-155" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-156"><a href="#cb13-156" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-157"><a href="#cb13-157" aria-hidden="true" tabindex="-1"></a>The transition matrix is a 41 x 41 matrix, where element $(i,j)$ represents the probability of moving from state $z_i$ to state $z_j$.</span>
-<span id="cb13-160"><a href="#cb13-160" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
-<span id="cb13-161"><a href="#cb13-161" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: false</span></span>
-<span id="cb13-162"><a href="#cb13-162" aria-hidden="true" tabindex="-1"></a><span class="in">#| output: true</span></span>
-<span id="cb13-163"><a href="#cb13-163" aria-hidden="true" tabindex="-1"></a><span class="in">size(trans)</span></span>
-<span id="cb13-164"><a href="#cb13-164" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-165"><a href="#cb13-165" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-166"><a href="#cb13-166" aria-hidden="true" tabindex="-1"></a>Next, we discretize the capital stock space, so that later on, our policy function contains integers indexing different $K$ values. The upper and lower bounds on $K$ are obtained by plugging in the minimum and maximum values of $z$ into the steady state equation. Note that the Euler equation is given as:</span>
-<span id="cb13-167"><a href="#cb13-167" aria-hidden="true" tabindex="-1"></a>$$ K = (\frac{r+δ}{αz})^{1-α}$$</span>
-<span id="cb13-168"><a href="#cb13-168" aria-hidden="true" tabindex="-1"></a>which provides solutions to the equation that sets the marginal product of capital equal to the user cost of capital. </span>
-<span id="cb13-169"><a href="#cb13-169" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-170"><a href="#cb13-170" aria-hidden="true" tabindex="-1"></a>We discretize $K$ into 501 points. Here is an example from the ``valfunclunky`<span class="in">` code script, where the risk free rate rate is 4\%, capital depreciation rate `</span>δ = 0.15<span class="in">`, curvature parameter `</span>α = 0.70<span class="in">`, and equity adjustment cost `</span>λ = 0.1`. </span>
-<span id="cb13-171"><a href="#cb13-171" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-174"><a href="#cb13-174" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
-<span id="cb13-175"><a href="#cb13-175" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: true</span></span>
-<span id="cb13-176"><a href="#cb13-176" aria-hidden="true" tabindex="-1"></a><span class="in">#| output: true</span></span>
-<span id="cb13-177"><a href="#cb13-177" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-178"><a href="#cb13-178" aria-hidden="true" tabindex="-1"></a><span class="in"># Dimensions</span></span>
-<span id="cb13-179"><a href="#cb13-179" aria-hidden="true" tabindex="-1"></a><span class="in">N_k = 501</span></span>
-<span id="cb13-180"><a href="#cb13-180" aria-hidden="true" tabindex="-1"></a><span class="in">N_k_pol = 501</span></span>
-<span id="cb13-181"><a href="#cb13-181" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-182"><a href="#cb13-182" aria-hidden="true" tabindex="-1"></a><span class="in"># Risk free rate and discount factor</span></span>
-<span id="cb13-183"><a href="#cb13-183" aria-hidden="true" tabindex="-1"></a><span class="in">rf = 0.04</span></span>
-<span id="cb13-184"><a href="#cb13-184" aria-hidden="true" tabindex="-1"></a><span class="in">β = 1.0 / (1.0 + rf)</span></span>
-<span id="cb13-185"><a href="#cb13-185" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-186"><a href="#cb13-186" aria-hidden="true" tabindex="-1"></a><span class="in"># Parameters</span></span>
-<span id="cb13-187"><a href="#cb13-187" aria-hidden="true" tabindex="-1"></a><span class="in">δ = 0.15   # capital depreciation</span></span>
-<span id="cb13-188"><a href="#cb13-188" aria-hidden="true" tabindex="-1"></a><span class="in">α = 0.70   # curvature parameter</span></span>
-<span id="cb13-189"><a href="#cb13-189" aria-hidden="true" tabindex="-1"></a><span class="in">λ = 0.1    # equity adjustment cost</span></span>
-<span id="cb13-190"><a href="#cb13-190" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-191"><a href="#cb13-191" aria-hidden="true" tabindex="-1"></a><span class="in">##### Discretize capital </span></span>
-<span id="cb13-192"><a href="#cb13-192" aria-hidden="true" tabindex="-1"></a><span class="in">zmax = maximum(z_grid)</span></span>
-<span id="cb13-193"><a href="#cb13-193" aria-hidden="true" tabindex="-1"></a><span class="in">zmin = minimum(z_grid)</span></span>
-<span id="cb13-194"><a href="#cb13-194" aria-hidden="true" tabindex="-1"></a><span class="in">skale = 0.2 # to make steady state capital stock reasonable</span></span>
-<span id="cb13-195"><a href="#cb13-195" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-196"><a href="#cb13-196" aria-hidden="true" tabindex="-1"></a><span class="in"># Euler: plug in min &amp; max of z to get bounds on k</span></span>
-<span id="cb13-197"><a href="#cb13-197" aria-hidden="true" tabindex="-1"></a><span class="in">kminstar = ((rf + δ) / (α * skale * zmin))^(1.0 / (α - 1.0))</span></span>
-<span id="cb13-198"><a href="#cb13-198" aria-hidden="true" tabindex="-1"></a><span class="in">kminstar = log(kminstar)</span></span>
-<span id="cb13-199"><a href="#cb13-199" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-200"><a href="#cb13-200" aria-hidden="true" tabindex="-1"></a><span class="in">kmaxstar = ((rf + δ) / (α * skale * zmax))^(1.0 / (α - 1.0))</span></span>
-<span id="cb13-201"><a href="#cb13-201" aria-hidden="true" tabindex="-1"></a><span class="in">kmaxstar = log(kmaxstar)</span></span>
-<span id="cb13-202"><a href="#cb13-202" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-203"><a href="#cb13-203" aria-hidden="true" tabindex="-1"></a><span class="in"># Create k grid (and take exponents back)</span></span>
-<span id="cb13-204"><a href="#cb13-204" aria-hidden="true" tabindex="-1"></a><span class="in">k_grid = collect(range(kminstar, stop=kmaxstar, length=N_k))</span></span>
-<span id="cb13-205"><a href="#cb13-205" aria-hidden="true" tabindex="-1"></a><span class="in">k_grid = exp.(k_grid)</span></span>
-<span id="cb13-206"><a href="#cb13-206" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-207"><a href="#cb13-207" aria-hidden="true" tabindex="-1"></a><span class="in"># Create k&#39; grid (policy grid)</span></span>
-<span id="cb13-208"><a href="#cb13-208" aria-hidden="true" tabindex="-1"></a><span class="in">k_pol_grid = collect(range(kminstar, stop=kmaxstar, length=N_k_pol))</span></span>
-<span id="cb13-209"><a href="#cb13-209" aria-hidden="true" tabindex="-1"></a><span class="in">k_pol_grid = exp.(k_pol_grid);</span></span>
-<span id="cb13-210"><a href="#cb13-210" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-211"><a href="#cb13-211" aria-hidden="true" tabindex="-1"></a><span class="in">println(&quot;Length of the policy grid is &quot;, length(k_pol_grid))</span></span>
-<span id="cb13-212"><a href="#cb13-212" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-213"><a href="#cb13-213" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-214"><a href="#cb13-214" aria-hidden="true" tabindex="-1"></a><span class="fu">## Profit Function</span></span>
-<span id="cb13-215"><a href="#cb13-215" aria-hidden="true" tabindex="-1"></a>Recall that the firm&#39;s objective is to maximize the present value of cash flows to shareholders. For convenience, let&#39;s just call this the profit function. As already discussed in the **Model** section, the profit function $E(\cdot)$ is defined piecewise according to the sign of internal cash flows $E*(\cdot)$:</span>
-<span id="cb13-216"><a href="#cb13-216" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-217"><a href="#cb13-217" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb13-218"><a href="#cb13-218" aria-hidden="true" tabindex="-1"></a>\begin{align*}</span>
-<span id="cb13-219"><a href="#cb13-219" aria-hidden="true" tabindex="-1"></a>    E(K, K&#39;, z) = </span>
-<span id="cb13-220"><a href="#cb13-220" aria-hidden="true" tabindex="-1"></a>    \begin{cases}</span>
-<span id="cb13-221"><a href="#cb13-221" aria-hidden="true" tabindex="-1"></a>    E^* &amp; \text{if } E^* \geq 0 <span class="sc">\\</span></span>
-<span id="cb13-222"><a href="#cb13-222" aria-hidden="true" tabindex="-1"></a>    E^*(1 + \lambda) &amp; \text{if } E^* &lt; 0</span>
-<span id="cb13-223"><a href="#cb13-223" aria-hidden="true" tabindex="-1"></a>    \end{cases}</span>
-<span id="cb13-224"><a href="#cb13-224" aria-hidden="true" tabindex="-1"></a>\end{align*}</span>
-<span id="cb13-225"><a href="#cb13-225" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb13-226"><a href="#cb13-226" aria-hidden="true" tabindex="-1"></a>where</span>
-<span id="cb13-227"><a href="#cb13-227" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb13-228"><a href="#cb13-228" aria-hidden="true" tabindex="-1"></a>    E^*(K, K&#39;, z) = zK^{\alpha} - (K&#39; - (1 - \delta)K).</span>
-<span id="cb13-229"><a href="#cb13-229" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb13-230"><a href="#cb13-230" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-231"><a href="#cb13-231" aria-hidden="true" tabindex="-1"></a>The profit function has three input parameters: current capital stock <span class="in">`K`</span>, next period&#39;s capital stock <span class="in">`K&#39;`</span>, and profitability shock <span class="in">`z`</span>. Since these variables have all been discretized, we can fully capture the profit function in a 3D array. The following code fills in this array with the profit function values for different <span class="in">`(z, K, K&#39;)`</span> combinations.</span>
-<span id="cb13-232"><a href="#cb13-232" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-235"><a href="#cb13-235" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
-<span id="cb13-236"><a href="#cb13-236" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: true</span></span>
-<span id="cb13-237"><a href="#cb13-237" aria-hidden="true" tabindex="-1"></a><span class="in">#| output: true</span></span>
-<span id="cb13-238"><a href="#cb13-238" aria-hidden="true" tabindex="-1"></a><span class="in"># Initialize profit array</span></span>
-<span id="cb13-239"><a href="#cb13-239" aria-hidden="true" tabindex="-1"></a><span class="in">profit = zeros(N_z, N_k, N_k_pol)</span></span>
-<span id="cb13-240"><a href="#cb13-240" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-241"><a href="#cb13-241" aria-hidden="true" tabindex="-1"></a><span class="in"># Loop over N_k_pol = 501 values of K&#39; ...</span></span>
-<span id="cb13-242"><a href="#cb13-242" aria-hidden="true" tabindex="-1"></a><span class="in">Threads.@threads for ik_pol in 1:N_k_pol</span></span>
-<span id="cb13-243"><a href="#cb13-243" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-244"><a href="#cb13-244" aria-hidden="true" tabindex="-1"></a><span class="in">    # ... and N_k = 501 values of K</span></span>
-<span id="cb13-245"><a href="#cb13-245" aria-hidden="true" tabindex="-1"></a><span class="in">    for ik in 1:N_k</span></span>
-<span id="cb13-246"><a href="#cb13-246" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-247"><a href="#cb13-247" aria-hidden="true" tabindex="-1"></a><span class="in">        # ... and N_z = 41 values of z</span></span>
-<span id="cb13-248"><a href="#cb13-248" aria-hidden="true" tabindex="-1"></a><span class="in">        for iz in 1:N_z</span></span>
-<span id="cb13-249"><a href="#cb13-249" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-250"><a href="#cb13-250" aria-hidden="true" tabindex="-1"></a><span class="in">            # Profit = internal cash flow if positive</span></span>
-<span id="cb13-251"><a href="#cb13-251" aria-hidden="true" tabindex="-1"></a><span class="in">            profit[iz, ik, ik_pol] =</span></span>
-<span id="cb13-252"><a href="#cb13-252" aria-hidden="true" tabindex="-1"></a><span class="in">                skale * z_grid[iz] * k_grid[ik]^α -</span></span>
-<span id="cb13-253"><a href="#cb13-253" aria-hidden="true" tabindex="-1"></a><span class="in">                (k_pol_grid[ik_pol] - (1.0 - δ) * k_grid[ik])</span></span>
-<span id="cb13-254"><a href="#cb13-254" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-255"><a href="#cb13-255" aria-hidden="true" tabindex="-1"></a><span class="in">            # If negative, pay financing costs λ%    </span></span>
-<span id="cb13-256"><a href="#cb13-256" aria-hidden="true" tabindex="-1"></a><span class="in">            if profit[iz, ik, ik_pol] &lt; 0.0</span></span>
-<span id="cb13-257"><a href="#cb13-257" aria-hidden="true" tabindex="-1"></a><span class="in">                profit[iz, ik, ik_pol] =</span></span>
-<span id="cb13-258"><a href="#cb13-258" aria-hidden="true" tabindex="-1"></a><span class="in">                    profit[iz, ik, ik_pol] * (1.0 + λ)</span></span>
-<span id="cb13-259"><a href="#cb13-259" aria-hidden="true" tabindex="-1"></a><span class="in">            end</span></span>
-<span id="cb13-260"><a href="#cb13-260" aria-hidden="true" tabindex="-1"></a><span class="in">        end</span></span>
-<span id="cb13-261"><a href="#cb13-261" aria-hidden="true" tabindex="-1"></a><span class="in">    end</span></span>
-<span id="cb13-262"><a href="#cb13-262" aria-hidden="true" tabindex="-1"></a><span class="in">end</span></span>
-<span id="cb13-263"><a href="#cb13-263" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-264"><a href="#cb13-264" aria-hidden="true" tabindex="-1"></a><span class="in">println(&quot;Size of the profit array is &quot;, size(profit))</span></span>
-<span id="cb13-265"><a href="#cb13-265" aria-hidden="true" tabindex="-1"></a><span class="in">```</span> </span>
-<span id="cb13-266"><a href="#cb13-266" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-267"><a href="#cb13-267" aria-hidden="true" tabindex="-1"></a>::: {.column-margin}</span>
-<span id="cb13-268"><a href="#cb13-268" aria-hidden="true" tabindex="-1"></a>A nested parallel loop likely causes too much overhead, so I only parallelize the outer loop here.</span>
-<span id="cb13-269"><a href="#cb13-269" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb13-270"><a href="#cb13-270" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-271"><a href="#cb13-271" aria-hidden="true" tabindex="-1"></a><span class="fu">## Bellman Equation</span></span>
-<span id="cb13-272"><a href="#cb13-272" aria-hidden="true" tabindex="-1"></a>Next, we formulate the Bellman equation and numerically solve the maximization problem. The key relevant files are <span class="in">`valfun.jl`</span> and <span class="in">`maxbellman.jl`</span>, and there are a few more files that implement more advanced computational methods. <span class="in">`inbetween.jl`</span> is for interpolation in a set-up where policy grid is finer than the capital grid (i.e. <span class="in">`N_k_pol`</span> &gt; <span class="in">`N_k`</span>). <span class="in">`howard.jl`</span> implements Howard&#39;s policy improvement algorithm, which is a more efficient way to solve the Bellman equation in earlier iterations of the VFI and when the policy function has already converged. <span class="in">`update.jl`</span> uses McQueen-Porteus algorithm to update the policy and value functions. More details can be found in the summer school slides. </span>
-<span id="cb13-273"><a href="#cb13-273" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-274"><a href="#cb13-274" aria-hidden="true" tabindex="-1"></a>The core of the VFI is to keep updating the value function until it converges to a numerical maximum. To do so, we keep iterating on the Bellman equation until the maximum difference between the *current* and *previous* value function is less than a given tolerance level. So, at each iteration, we are really comparing the best value function we have found so far, against the next *candidate* maximum.</span>
-<span id="cb13-275"><a href="#cb13-275" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-276"><a href="#cb13-276" aria-hidden="true" tabindex="-1"></a>The criter</span>
-<span id="cb13-277"><a href="#cb13-277" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-278"><a href="#cb13-278" aria-hidden="true" tabindex="-1"></a><span class="fu"># 2. Simulation</span></span>
-<span id="cb13-279"><a href="#cb13-279" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-280"><a href="#cb13-280" aria-hidden="true" tabindex="-1"></a><span class="fu"># 3. Estimation</span></span>
+<div class="sourceCode" id="cb14" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> Key Functions</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="in">#| setup: true</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="in">#| echo: false</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="in">import Pkg</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="in">Pkg.activate(@__DIR__, io=devnull)</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: false</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="in">#| output: true</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>The goal of this section is to describe the core functions and document the way Toni organized her code. The functions can largely be divded into three categories. First, the *model solver* discretizes the state space, sets up the transition matrix, and solves the model. Second, the *simulation subroutines* simulate the model and collect statistics. Finally, the *estimation* prepares the data for estimation and runs the estimation routine.</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>These are some set-ups that will be necessary for the code to run.</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: false</span></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a><span class="in">#| output: false</span></span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a><span class="in"># Think about which file to include this code in eventually.</span></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a><span class="in">using Random, Distributions, LinearAlgebra, Plots, Statistics, Printf</span></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a><span class="fu"># 1. Model Solver</span></span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>The goal in this part is to solve the dynamic model via value function iteration (VFI). The code organization is slightly redundant and chaotic in my humble opinion, so I include an overview here. </span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>::: {.column-margin}</span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>Toni has a code script for almost every single function -- this is way too many files! It would be better to group them either into (1) fewer files containing multiple functions, or into (2) separate sub-folders containing individual functions. But to be fair, her readme file is very useful.</span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>The code file <span class="in">`valfun.jl`</span> performs the VFI. </span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>A separate file called <span class="in">`collectfunctions.jl`</span> calls the above <span class="in">`valfun.jl`</span> and performs some plotting, interpolation, simulation, and moment generation. To see the entire list of relevant files, please unfold the following code block.</span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
+<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: true</span></span>
+<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a><span class="in">#| eval: false</span></span>
+<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a><span class="in"># # ============ Stuff that goes into VFI ====================</span></span>
+<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;makegrids.jl&quot;)          # makes the grids</span></span>
+<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;tauchen.jl&quot;)            # makes the transition matrix</span></span>
+<span id="cb14-55"><a href="#cb14-55" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;profit.jl&quot;)             # makes the profit function</span></span>
+<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;fillin.jl&quot;)             # interpolates the value function. Inefficient. You should make the weights only once. </span></span>
+<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;maxbellman.jl&quot;)         # finds the maximum of the bellman equation</span></span>
+<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;tinybellman.jl&quot;)        # finds the maximum of the bellman equation, within limited bounbds</span></span>
+<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;howard.jl&quot;)             #  Howard&#39;s policy improvement algorithm</span></span>
+<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;makepol.jl&quot;)            #  makes the policy function from the index policy function</span></span>
+<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;makeconst.jl&quot;)          #  renormalized the profit function</span></span>
+<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;ptrue.jl&quot;)              #  sets the true parameter values</span></span>
+<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;mew.jl&quot;)                #  makes the stationary distribution. </span></span>
+<span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;inbetween.jl&quot;)          #  makes interpolation weights and indices</span></span>
+<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;extract_parameters.jl&quot;) # little helper function to pull parameters out of a vector</span></span>
+<span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;update.jl&quot;)             # updates the value function</span></span>
+<span id="cb14-67"><a href="#cb14-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-68"><a href="#cb14-68" aria-hidden="true" tabindex="-1"></a><span class="in"># # ============ VFI =========================================</span></span>
+<span id="cb14-69"><a href="#cb14-69" aria-hidden="true" tabindex="-1"></a><span class="in"># if settings.fast == true</span></span>
+<span id="cb14-70"><a href="#cb14-70" aria-hidden="true" tabindex="-1"></a><span class="in">#     include(&quot;valfun.jl&quot;)          # The fast version</span></span>
+<span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a><span class="in"># else</span></span>
+<span id="cb14-72"><a href="#cb14-72" aria-hidden="true" tabindex="-1"></a><span class="in">#     include(&quot;valfunslow.jl&quot;)      # The slow version</span></span>
+<span id="cb14-73"><a href="#cb14-73" aria-hidden="true" tabindex="-1"></a><span class="in"># end</span></span>
+<span id="cb14-74"><a href="#cb14-74" aria-hidden="true" tabindex="-1"></a><span class="in"># # ============ Plotting and simulation =====================</span></span>
+<span id="cb14-75"><a href="#cb14-75" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;plotstuff.jl&quot;)    # Self-explanatory</span></span>
+<span id="cb14-76"><a href="#cb14-76" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;printstuff.jl&quot;)   # Self-explanatory</span></span>
+<span id="cb14-77"><a href="#cb14-77" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;simmodel.jl&quot;)     # Simulates the model. </span></span>
+<span id="cb14-78"><a href="#cb14-78" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;interpol.jl&quot;)     # Interpolates the value and policy functions</span></span>
+<span id="cb14-79"><a href="#cb14-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-80"><a href="#cb14-80" aria-hidden="true" tabindex="-1"></a><span class="in"># # ============Making moments ===============================</span></span>
+<span id="cb14-81"><a href="#cb14-81" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;momentgen.jl&quot;);   # wrapper</span></span>
+<span id="cb14-82"><a href="#cb14-82" aria-hidden="true" tabindex="-1"></a><span class="in"># include(&quot;makemoments.jl&quot;); # Self-explanatory</span></span>
+<span id="cb14-83"><a href="#cb14-83" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-84"><a href="#cb14-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-85"><a href="#cb14-85" aria-hidden="true" tabindex="-1"></a>The values for the compuational parameters are *separately* defined in <span class="in">`invest_mod.jl`</span>. Using these specific values, Toni then runs all of these files, in another file called <span class="in">`evalfun.jl`</span>. As the name implies, this is where the actual function evaluation is done. This produces the simulated moments for a single parameter combination $(\alpha, \delta)$ and the associated comparative statistics outputs.</span>
+<span id="cb14-86"><a href="#cb14-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-87"><a href="#cb14-87" aria-hidden="true" tabindex="-1"></a><span class="fu">## Discretization</span></span>
+<span id="cb14-88"><a href="#cb14-88" aria-hidden="true" tabindex="-1"></a>The relevant code files for this step are <span class="in">`tauchen.jl`</span> and <span class="in">`makegrids.jl`</span>. </span>
+<span id="cb14-89"><a href="#cb14-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-90"><a href="#cb14-90" aria-hidden="true" tabindex="-1"></a>Recall that the process that governs the evolution of shock $z$ is given as:</span>
+<span id="cb14-91"><a href="#cb14-91" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb14-92"><a href="#cb14-92" aria-hidden="true" tabindex="-1"></a>    \ln(z&#39;) = \rho \ln(z) + \sigma \varepsilon&#39;, \quad \varepsilon&#39; \sim \mathcal{N}(0, 1)</span>
+<span id="cb14-93"><a href="#cb14-93" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb14-94"><a href="#cb14-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-95"><a href="#cb14-95" aria-hidden="true" tabindex="-1"></a>Using the Tauchen method, we can approximate this continuous state space with a discrete Markov chain. The following function implements the Tauchen method to generate a grid of $z$ values and the corresponding transition probabilities. The input parameters for this function are: the autocorrelation <span class="in">`ρ = 0.7`</span>, intercept of the AR1 <span class="in">`μ = 0`</span>, standard deviation of the residual <span class="in">`σ = 0.2`</span>, number of standard deviations <span class="in">`q = 3`</span>, and the number of grid points <span class="in">`N_z = 41`</span>.</span>
+<span id="cb14-96"><a href="#cb14-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-99"><a href="#cb14-99" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
+<span id="cb14-100"><a href="#cb14-100" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: true</span></span>
+<span id="cb14-101"><a href="#cb14-101" aria-hidden="true" tabindex="-1"></a><span class="in">#| output: false</span></span>
+<span id="cb14-102"><a href="#cb14-102" aria-hidden="true" tabindex="-1"></a><span class="in">function tauchen(mew::Float64, sigma::Float64, rho::Float64, znum::Int, q::Float64)</span></span>
+<span id="cb14-103"><a href="#cb14-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-104"><a href="#cb14-104" aria-hidden="true" tabindex="-1"></a><span class="in">    zstar = mew / (1.0 - rho) #expected value of z</span></span>
+<span id="cb14-105"><a href="#cb14-105" aria-hidden="true" tabindex="-1"></a><span class="in">    sigmaz = sigma / sqrt(1.0 - rho^2) #stddev of z</span></span>
+<span id="cb14-106"><a href="#cb14-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-107"><a href="#cb14-107" aria-hidden="true" tabindex="-1"></a><span class="in">    z = zstar .+ collect(range(-q * sigmaz, stop=q * sigmaz, length=znum))</span></span>
+<span id="cb14-108"><a href="#cb14-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-109"><a href="#cb14-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-110"><a href="#cb14-110" aria-hidden="true" tabindex="-1"></a><span class="in">    trans = zeros(znum, znum)</span></span>
+<span id="cb14-111"><a href="#cb14-111" aria-hidden="true" tabindex="-1"></a><span class="in">    w = (z[2] - z[1])  #Note that all the points are equidistant by construction.</span></span>
+<span id="cb14-112"><a href="#cb14-112" aria-hidden="true" tabindex="-1"></a><span class="in">    for iz in 1:znum</span></span>
+<span id="cb14-113"><a href="#cb14-113" aria-hidden="true" tabindex="-1"></a><span class="in">        for izz in 1:znum</span></span>
+<span id="cb14-114"><a href="#cb14-114" aria-hidden="true" tabindex="-1"></a><span class="in">            binhi = (z[izz] - rho * z[iz] + w / 2.0) / sigma</span></span>
+<span id="cb14-115"><a href="#cb14-115" aria-hidden="true" tabindex="-1"></a><span class="in">            binlo = (z[izz] - rho * z[iz] - w / 2.0) / sigma</span></span>
+<span id="cb14-116"><a href="#cb14-116" aria-hidden="true" tabindex="-1"></a><span class="in">            if izz == 1</span></span>
+<span id="cb14-117"><a href="#cb14-117" aria-hidden="true" tabindex="-1"></a><span class="in">                trans[iz, izz] = cdf(Normal(), binhi)</span></span>
+<span id="cb14-118"><a href="#cb14-118" aria-hidden="true" tabindex="-1"></a><span class="in">            elseif izz == znum</span></span>
+<span id="cb14-119"><a href="#cb14-119" aria-hidden="true" tabindex="-1"></a><span class="in">                trans[iz, izz] = 1.0 - cdf(Normal(), binlo)</span></span>
+<span id="cb14-120"><a href="#cb14-120" aria-hidden="true" tabindex="-1"></a><span class="in">            else</span></span>
+<span id="cb14-121"><a href="#cb14-121" aria-hidden="true" tabindex="-1"></a><span class="in">                trans[iz, izz] = cdf(Normal(), binhi) - cdf(Normal(), binlo)</span></span>
+<span id="cb14-122"><a href="#cb14-122" aria-hidden="true" tabindex="-1"></a><span class="in">            end</span></span>
+<span id="cb14-123"><a href="#cb14-123" aria-hidden="true" tabindex="-1"></a><span class="in">        end</span></span>
+<span id="cb14-124"><a href="#cb14-124" aria-hidden="true" tabindex="-1"></a><span class="in">    end</span></span>
+<span id="cb14-125"><a href="#cb14-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-126"><a href="#cb14-126" aria-hidden="true" tabindex="-1"></a><span class="in">    return z::Vector{Float64}, trans::Matrix{Float64}</span></span>
+<span id="cb14-127"><a href="#cb14-127" aria-hidden="true" tabindex="-1"></a><span class="in">end</span></span>
+<span id="cb14-128"><a href="#cb14-128" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-129"><a href="#cb14-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-130"><a href="#cb14-130" aria-hidden="true" tabindex="-1"></a>The output is a vector of $z$ values and a matrix of transition probabilities. Throughout the code, we refer to them as <span class="in">`z_grid`</span> and <span class="in">`trans`</span>, respectively.</span>
+<span id="cb14-133"><a href="#cb14-133" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
+<span id="cb14-134"><a href="#cb14-134" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: true</span></span>
+<span id="cb14-135"><a href="#cb14-135" aria-hidden="true" tabindex="-1"></a><span class="in">#| output: true</span></span>
+<span id="cb14-136"><a href="#cb14-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-137"><a href="#cb14-137" aria-hidden="true" tabindex="-1"></a><span class="in"># Tauchen parameters</span></span>
+<span id="cb14-138"><a href="#cb14-138" aria-hidden="true" tabindex="-1"></a><span class="in">N_z = 41   # shock grid number</span></span>
+<span id="cb14-139"><a href="#cb14-139" aria-hidden="true" tabindex="-1"></a><span class="in">σ = 0.20   # SD of error term</span></span>
+<span id="cb14-140"><a href="#cb14-140" aria-hidden="true" tabindex="-1"></a><span class="in">μ = 0.0    # AR1 intercept</span></span>
+<span id="cb14-141"><a href="#cb14-141" aria-hidden="true" tabindex="-1"></a><span class="in">ρ = 0.70   # AR1 coefficient</span></span>
+<span id="cb14-142"><a href="#cb14-142" aria-hidden="true" tabindex="-1"></a><span class="in">q = 3.0    # 3 standard deviations for the z</span></span>
+<span id="cb14-143"><a href="#cb14-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-144"><a href="#cb14-144" aria-hidden="true" tabindex="-1"></a><span class="in">z_grid, trans = tauchen(μ, σ, ρ, N_z, q);</span></span>
+<span id="cb14-145"><a href="#cb14-145" aria-hidden="true" tabindex="-1"></a><span class="in">z_grid = exp.(z_grid);</span></span>
+<span id="cb14-146"><a href="#cb14-146" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-147"><a href="#cb14-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-148"><a href="#cb14-148" aria-hidden="true" tabindex="-1"></a>We discretize the $z$ shock to 41 points.</span>
+<span id="cb14-151"><a href="#cb14-151" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
+<span id="cb14-152"><a href="#cb14-152" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: false</span></span>
+<span id="cb14-153"><a href="#cb14-153" aria-hidden="true" tabindex="-1"></a><span class="in">#| output: true</span></span>
+<span id="cb14-154"><a href="#cb14-154" aria-hidden="true" tabindex="-1"></a><span class="in">print(z_grid)</span></span>
+<span id="cb14-155"><a href="#cb14-155" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-156"><a href="#cb14-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-157"><a href="#cb14-157" aria-hidden="true" tabindex="-1"></a>The transition matrix is a 41 x 41 matrix, where element $(i,j)$ represents the probability of moving from state $z_i$ to state $z_j$.</span>
+<span id="cb14-160"><a href="#cb14-160" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
+<span id="cb14-161"><a href="#cb14-161" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: false</span></span>
+<span id="cb14-162"><a href="#cb14-162" aria-hidden="true" tabindex="-1"></a><span class="in">#| output: true</span></span>
+<span id="cb14-163"><a href="#cb14-163" aria-hidden="true" tabindex="-1"></a><span class="in">size(trans)</span></span>
+<span id="cb14-164"><a href="#cb14-164" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-165"><a href="#cb14-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-166"><a href="#cb14-166" aria-hidden="true" tabindex="-1"></a>Next, we discretize the capital stock space, so that later on, our policy function contains integers indexing different $K$ values. The upper and lower bounds on $K$ are obtained by plugging in the minimum and maximum values of $z$ into the steady state equation. The Euler equation is given as:</span>
+<span id="cb14-167"><a href="#cb14-167" aria-hidden="true" tabindex="-1"></a>$$ K = (\frac{r+δ}{αz})^{1-α}$$</span>
+<span id="cb14-168"><a href="#cb14-168" aria-hidden="true" tabindex="-1"></a>which provides solutions to the equation that sets the marginal product of capital equal to the user cost of capital. </span>
+<span id="cb14-169"><a href="#cb14-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-170"><a href="#cb14-170" aria-hidden="true" tabindex="-1"></a>We discretize $K$ into 501 points. Here is an example from the ``valfunclunky`<span class="in">` code script, where the risk free rate rate is 4\%, capital depreciation rate `</span>δ = 0.15<span class="in">`, curvature parameter `</span>α = 0.70<span class="in">`, and equity adjustment cost `</span>λ = 0.1`. </span>
+<span id="cb14-171"><a href="#cb14-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-174"><a href="#cb14-174" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
+<span id="cb14-175"><a href="#cb14-175" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: true</span></span>
+<span id="cb14-176"><a href="#cb14-176" aria-hidden="true" tabindex="-1"></a><span class="in">#| output: true</span></span>
+<span id="cb14-177"><a href="#cb14-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-178"><a href="#cb14-178" aria-hidden="true" tabindex="-1"></a><span class="in"># Dimensions</span></span>
+<span id="cb14-179"><a href="#cb14-179" aria-hidden="true" tabindex="-1"></a><span class="in">N_k = 501</span></span>
+<span id="cb14-180"><a href="#cb14-180" aria-hidden="true" tabindex="-1"></a><span class="in">N_k_pol = 501</span></span>
+<span id="cb14-181"><a href="#cb14-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-182"><a href="#cb14-182" aria-hidden="true" tabindex="-1"></a><span class="in"># Risk free rate and discount factor</span></span>
+<span id="cb14-183"><a href="#cb14-183" aria-hidden="true" tabindex="-1"></a><span class="in">rf = 0.04</span></span>
+<span id="cb14-184"><a href="#cb14-184" aria-hidden="true" tabindex="-1"></a><span class="in">β = 1.0 / (1.0 + rf)</span></span>
+<span id="cb14-185"><a href="#cb14-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-186"><a href="#cb14-186" aria-hidden="true" tabindex="-1"></a><span class="in"># Parameters</span></span>
+<span id="cb14-187"><a href="#cb14-187" aria-hidden="true" tabindex="-1"></a><span class="in">δ = 0.15   # capital depreciation</span></span>
+<span id="cb14-188"><a href="#cb14-188" aria-hidden="true" tabindex="-1"></a><span class="in">α = 0.70   # curvature parameter</span></span>
+<span id="cb14-189"><a href="#cb14-189" aria-hidden="true" tabindex="-1"></a><span class="in">λ = 0.1    # equity adjustment cost</span></span>
+<span id="cb14-190"><a href="#cb14-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-191"><a href="#cb14-191" aria-hidden="true" tabindex="-1"></a><span class="in">##### Discretize capital </span></span>
+<span id="cb14-192"><a href="#cb14-192" aria-hidden="true" tabindex="-1"></a><span class="in">zmax = maximum(z_grid)</span></span>
+<span id="cb14-193"><a href="#cb14-193" aria-hidden="true" tabindex="-1"></a><span class="in">zmin = minimum(z_grid)</span></span>
+<span id="cb14-194"><a href="#cb14-194" aria-hidden="true" tabindex="-1"></a><span class="in">skale = 0.2 # to make steady state capital stock reasonable</span></span>
+<span id="cb14-195"><a href="#cb14-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-196"><a href="#cb14-196" aria-hidden="true" tabindex="-1"></a><span class="in"># Euler: plug in min &amp; max of z to get bounds on k</span></span>
+<span id="cb14-197"><a href="#cb14-197" aria-hidden="true" tabindex="-1"></a><span class="in">kminstar = ((rf + δ) / (α * skale * zmin))^(1.0 / (α - 1.0))</span></span>
+<span id="cb14-198"><a href="#cb14-198" aria-hidden="true" tabindex="-1"></a><span class="in">kminstar = log(kminstar)</span></span>
+<span id="cb14-199"><a href="#cb14-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-200"><a href="#cb14-200" aria-hidden="true" tabindex="-1"></a><span class="in">kmaxstar = ((rf + δ) / (α * skale * zmax))^(1.0 / (α - 1.0))</span></span>
+<span id="cb14-201"><a href="#cb14-201" aria-hidden="true" tabindex="-1"></a><span class="in">kmaxstar = log(kmaxstar)</span></span>
+<span id="cb14-202"><a href="#cb14-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-203"><a href="#cb14-203" aria-hidden="true" tabindex="-1"></a><span class="in"># Create k grid (and take exponents back)</span></span>
+<span id="cb14-204"><a href="#cb14-204" aria-hidden="true" tabindex="-1"></a><span class="in">k_grid = collect(range(kminstar, stop=kmaxstar, length=N_k))</span></span>
+<span id="cb14-205"><a href="#cb14-205" aria-hidden="true" tabindex="-1"></a><span class="in">k_grid = exp.(k_grid)</span></span>
+<span id="cb14-206"><a href="#cb14-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-207"><a href="#cb14-207" aria-hidden="true" tabindex="-1"></a><span class="in"># Create k&#39; grid (policy grid)</span></span>
+<span id="cb14-208"><a href="#cb14-208" aria-hidden="true" tabindex="-1"></a><span class="in">k_pol_grid = collect(range(kminstar, stop=kmaxstar, length=N_k_pol))</span></span>
+<span id="cb14-209"><a href="#cb14-209" aria-hidden="true" tabindex="-1"></a><span class="in">k_pol_grid = exp.(k_pol_grid);</span></span>
+<span id="cb14-210"><a href="#cb14-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-211"><a href="#cb14-211" aria-hidden="true" tabindex="-1"></a><span class="in">println(&quot;Length of the policy grid is &quot;, length(k_pol_grid))</span></span>
+<span id="cb14-212"><a href="#cb14-212" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-213"><a href="#cb14-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-214"><a href="#cb14-214" aria-hidden="true" tabindex="-1"></a><span class="fu">## Profit Function</span></span>
+<span id="cb14-215"><a href="#cb14-215" aria-hidden="true" tabindex="-1"></a>Recall that the firm&#39;s objective is to maximize the present value of cash flows to shareholders. For convenience, let&#39;s just call this the profit function. As already discussed in the **Model** section, the profit function $E(\cdot)$ is defined piecewise according to the sign of internal cash flows $E*(\cdot)$:</span>
+<span id="cb14-216"><a href="#cb14-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-217"><a href="#cb14-217" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb14-218"><a href="#cb14-218" aria-hidden="true" tabindex="-1"></a>\begin{align*}</span>
+<span id="cb14-219"><a href="#cb14-219" aria-hidden="true" tabindex="-1"></a>    E(K, K&#39;, z) = </span>
+<span id="cb14-220"><a href="#cb14-220" aria-hidden="true" tabindex="-1"></a>    \begin{cases}</span>
+<span id="cb14-221"><a href="#cb14-221" aria-hidden="true" tabindex="-1"></a>    E^* &amp; \text{if } E^* \geq 0 <span class="sc">\\</span></span>
+<span id="cb14-222"><a href="#cb14-222" aria-hidden="true" tabindex="-1"></a>    E^*(1 + \lambda) &amp; \text{if } E^* &lt; 0</span>
+<span id="cb14-223"><a href="#cb14-223" aria-hidden="true" tabindex="-1"></a>    \end{cases}</span>
+<span id="cb14-224"><a href="#cb14-224" aria-hidden="true" tabindex="-1"></a>\end{align*}</span>
+<span id="cb14-225"><a href="#cb14-225" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb14-226"><a href="#cb14-226" aria-hidden="true" tabindex="-1"></a>where</span>
+<span id="cb14-227"><a href="#cb14-227" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb14-228"><a href="#cb14-228" aria-hidden="true" tabindex="-1"></a>    E^*(K, K&#39;, z) = zK^{\alpha} - (K&#39; - (1 - \delta)K).</span>
+<span id="cb14-229"><a href="#cb14-229" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb14-230"><a href="#cb14-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-231"><a href="#cb14-231" aria-hidden="true" tabindex="-1"></a>The profit function has three input parameters: current capital stock <span class="in">`K`</span>, next period&#39;s capital stock <span class="in">`K&#39;`</span>, and profitability shock <span class="in">`z`</span>. Since these variables have all been discretized, we can fully capture the profit function in a 3D array. The following code fills in this array with the profit function values for different <span class="in">`(z, K, K&#39;)`</span> combinations.</span>
+<span id="cb14-232"><a href="#cb14-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-235"><a href="#cb14-235" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
+<span id="cb14-236"><a href="#cb14-236" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: true</span></span>
+<span id="cb14-237"><a href="#cb14-237" aria-hidden="true" tabindex="-1"></a><span class="in">#| output: true</span></span>
+<span id="cb14-238"><a href="#cb14-238" aria-hidden="true" tabindex="-1"></a><span class="in"># Initialize profit array</span></span>
+<span id="cb14-239"><a href="#cb14-239" aria-hidden="true" tabindex="-1"></a><span class="in">profit = zeros(N_z, N_k, N_k_pol)</span></span>
+<span id="cb14-240"><a href="#cb14-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-241"><a href="#cb14-241" aria-hidden="true" tabindex="-1"></a><span class="in"># Loop over N_k_pol = 501 values of K&#39; ...</span></span>
+<span id="cb14-242"><a href="#cb14-242" aria-hidden="true" tabindex="-1"></a><span class="in">Threads.@threads for ik_pol in 1:N_k_pol</span></span>
+<span id="cb14-243"><a href="#cb14-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-244"><a href="#cb14-244" aria-hidden="true" tabindex="-1"></a><span class="in">    # ... and N_k = 501 values of K</span></span>
+<span id="cb14-245"><a href="#cb14-245" aria-hidden="true" tabindex="-1"></a><span class="in">    for ik in 1:N_k</span></span>
+<span id="cb14-246"><a href="#cb14-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-247"><a href="#cb14-247" aria-hidden="true" tabindex="-1"></a><span class="in">        # ... and N_z = 41 values of z</span></span>
+<span id="cb14-248"><a href="#cb14-248" aria-hidden="true" tabindex="-1"></a><span class="in">        for iz in 1:N_z</span></span>
+<span id="cb14-249"><a href="#cb14-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-250"><a href="#cb14-250" aria-hidden="true" tabindex="-1"></a><span class="in">            # Profit = internal cash flow if positive</span></span>
+<span id="cb14-251"><a href="#cb14-251" aria-hidden="true" tabindex="-1"></a><span class="in">            profit[iz, ik, ik_pol] =</span></span>
+<span id="cb14-252"><a href="#cb14-252" aria-hidden="true" tabindex="-1"></a><span class="in">                skale * z_grid[iz] * k_grid[ik]^α -</span></span>
+<span id="cb14-253"><a href="#cb14-253" aria-hidden="true" tabindex="-1"></a><span class="in">                (k_pol_grid[ik_pol] - (1.0 - δ) * k_grid[ik])</span></span>
+<span id="cb14-254"><a href="#cb14-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-255"><a href="#cb14-255" aria-hidden="true" tabindex="-1"></a><span class="in">            # Profit = financing costs in addition if negative    </span></span>
+<span id="cb14-256"><a href="#cb14-256" aria-hidden="true" tabindex="-1"></a><span class="in">            if profit[iz, ik, ik_pol] &lt; 0.0</span></span>
+<span id="cb14-257"><a href="#cb14-257" aria-hidden="true" tabindex="-1"></a><span class="in">                profit[iz, ik, ik_pol] =</span></span>
+<span id="cb14-258"><a href="#cb14-258" aria-hidden="true" tabindex="-1"></a><span class="in">                    profit[iz, ik, ik_pol] * (1.0 + λ)</span></span>
+<span id="cb14-259"><a href="#cb14-259" aria-hidden="true" tabindex="-1"></a><span class="in">            end</span></span>
+<span id="cb14-260"><a href="#cb14-260" aria-hidden="true" tabindex="-1"></a><span class="in">        end</span></span>
+<span id="cb14-261"><a href="#cb14-261" aria-hidden="true" tabindex="-1"></a><span class="in">    end</span></span>
+<span id="cb14-262"><a href="#cb14-262" aria-hidden="true" tabindex="-1"></a><span class="in">end</span></span>
+<span id="cb14-263"><a href="#cb14-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-264"><a href="#cb14-264" aria-hidden="true" tabindex="-1"></a><span class="in">println(&quot;Size of the profit array is &quot;, size(profit))</span></span>
+<span id="cb14-265"><a href="#cb14-265" aria-hidden="true" tabindex="-1"></a><span class="in">```</span> </span>
+<span id="cb14-266"><a href="#cb14-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-267"><a href="#cb14-267" aria-hidden="true" tabindex="-1"></a>We have successfully computed the profit function.</span>
+<span id="cb14-268"><a href="#cb14-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-269"><a href="#cb14-269" aria-hidden="true" tabindex="-1"></a>::: {.column-margin}</span>
+<span id="cb14-270"><a href="#cb14-270" aria-hidden="true" tabindex="-1"></a>A nested parallel loop likely causes too much overhead, so I only parallelize the outer loop here.</span>
+<span id="cb14-271"><a href="#cb14-271" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb14-272"><a href="#cb14-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-273"><a href="#cb14-273" aria-hidden="true" tabindex="-1"></a><span class="fu">## Bellman Equation</span></span>
+<span id="cb14-274"><a href="#cb14-274" aria-hidden="true" tabindex="-1"></a>Next, we formulate the Bellman equation and numerically solve the maximization problem. The key relevant files are <span class="in">`valfun.jl`</span> and <span class="in">`maxbellman.jl`</span>, and there are a few more files that implement more advanced computational methods:</span>
+<span id="cb14-275"><a href="#cb14-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-276"><a href="#cb14-276" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`inbetween.jl`</span>: performs interpolation in a set-up where policy grid is finer than the capital grid (i.e. <span class="in">`N_k_pol`</span> &gt; <span class="in">`N_k`</span>) </span>
+<span id="cb14-277"><a href="#cb14-277" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`howard.jl`</span>: implements Howard&#39;s policy improvement algorithm, which is a more efficient way to solve the Bellman equation in earlier iterations of the VFI and when the policy function has already converged</span>
+<span id="cb14-278"><a href="#cb14-278" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`update.jl`</span>: implements McQueen-Porteus algorithm to update the policy and value functions. </span>
+<span id="cb14-279"><a href="#cb14-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-280"><a href="#cb14-280" aria-hidden="true" tabindex="-1"></a>Using notation from summer school notes, we can write the Bellman equation as:</span>
+<span id="cb14-281"><a href="#cb14-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-282"><a href="#cb14-282" aria-hidden="true" tabindex="-1"></a>::: {.column-margin}</span>
+<span id="cb14-283"><a href="#cb14-283" aria-hidden="true" tabindex="-1"></a>The lecture notes uses a different set of notations, where $E$ is $R$, $K$ is $s$, and $z$ is $x$.</span>
+<span id="cb14-284"><a href="#cb14-284" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb14-285"><a href="#cb14-285" aria-hidden="true" tabindex="-1"></a>$$ V(K,z) = \max_{K&#39; \in \Gamma(K,z)} \left<span class="co">[</span><span class="ot"> R(K,z,K&#39;) + \beta \, \mathbb{E}_{z&#39;|z} \, V(K&#39;,z&#39;) \right</span><span class="co">]</span> $$</span>
+<span id="cb14-286"><a href="#cb14-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-287"><a href="#cb14-287" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-288"><a href="#cb14-288" aria-hidden="true" tabindex="-1"></a>We already computed $R(\cdot)$ in the previous step, so let&#39;s compute the expectation term. We take the expectation over **all** the next-period states $z&#39;$, for **each** combination of the current state $z$ and the current capital stock $K$. This gives us the next-period value function, which provides a mapping from **all** possible combinations of $z&#39;$ and $K&#39;$ to the .</span>
+<span id="cb14-289"><a href="#cb14-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-290"><a href="#cb14-290" aria-hidden="true" tabindex="-1"></a>The value function is a 2D array of size <span class="in">`N_z x N_k`</span>, where each element corresponds to the value of being in state $(z, K)$.</span>
+<span id="cb14-291"><a href="#cb14-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-292"><a href="#cb14-292" aria-hidden="true" tabindex="-1"></a>The key here is to have the dimensions right: the value function is a 2D array of size <span class="in">`N_z x N_k`</span>, and the transition matrix is a 2D array of size <span class="in">`N_z x N_z`</span>. The following code implements the Bellman equation.</span>
+<span id="cb14-295"><a href="#cb14-295" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
+<span id="cb14-296"><a href="#cb14-296" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: true</span></span>
+<span id="cb14-297"><a href="#cb14-297" aria-hidden="true" tabindex="-1"></a><span class="in">#| output: true</span></span>
+<span id="cb14-298"><a href="#cb14-298" aria-hidden="true" tabindex="-1"></a><span class="in"># Bellman equation</span></span>
+<span id="cb14-299"><a href="#cb14-299" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-300"><a href="#cb14-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-301"><a href="#cb14-301" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-302"><a href="#cb14-302" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-303"><a href="#cb14-303" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-304"><a href="#cb14-304" aria-hidden="true" tabindex="-1"></a><span class="fu">## Value Function Iteration</span></span>
+<span id="cb14-305"><a href="#cb14-305" aria-hidden="true" tabindex="-1"></a>The core of the VFI is to keep updating the value function until it converges to a numerical maximum. To do so, we keep iterating on the Bellman equation until the maximum difference between the *current* and *previous* value function is less than a given tolerance level. So, at each iteration, we are really comparing the best value function we have found so far, against the next *candidate* maximum.</span>
+<span id="cb14-306"><a href="#cb14-306" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-307"><a href="#cb14-307" aria-hidden="true" tabindex="-1"></a>When calculating this difference between the current and previous value functions, we will use the supremum norm as a measure of distance (which is a standard practice). That is, if the maximum absolute difference is less than the tolerance level, we stop iterating. The following code implements this logic.</span>
+<span id="cb14-308"><a href="#cb14-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-309"><a href="#cb14-309" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- The criterion  --&gt;</span></span>
+<span id="cb14-310"><a href="#cb14-310" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-311"><a href="#cb14-311" aria-hidden="true" tabindex="-1"></a><span class="fu"># 2. Simulation</span></span>
+<span id="cb14-312"><a href="#cb14-312" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-313"><a href="#cb14-313" aria-hidden="true" tabindex="-1"></a><span class="fu"># 3. Estimation</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
