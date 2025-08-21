@@ -5,7 +5,8 @@ title: Key Functions
 ```{julia}
 #| setup: true
 #| echo: false
-import Pkg; Pkg.activate(@__DIR__)
+import Pkg
+Pkg.activate(@__DIR__, io=devnull)
 ```
 
 ```{julia}
