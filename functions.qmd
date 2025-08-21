@@ -32,8 +32,9 @@ The code file `valfun.jl` performs the VFI.
 
 A separate file called `collectfunctions.jl` calls the above `valfun.jl` and performs some plotting, interpolation, simulation, and moment generation. To see the entire list of relevant files, please unfold the following code block.
 
-```{julia eval=false}
+```{julia}
 #| code-fold: true
+#| eval: false
 
 # # ============ Stuff that goes into VFI ====================
 # include("makegrids.jl")          # makes the grids
