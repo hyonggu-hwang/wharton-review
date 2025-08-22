@@ -4833,7 +4833,7 @@ window.Quarto = {
 
 <p>The goal of this section is to describe the core functions and document the way Toni organized her code. The functions can largely be divded into three categories. First, the <em>model solver</em> discretizes the state space, sets up the transition matrix, and solves the model. Second, the <em>simulation subroutines</em> simulate the model and collect statistics. Finally, the <em>estimation</em> prepares the data for estimation and runs the estimation routine.</p>
 <p>These are some set-ups that will be necessary for the code to run.</p>
-<div id="c9e1cfa1" class="cell" data-execution_count="3">
+<div id="9eb7a338" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Think about which file to include this code in eventually.</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Random</span>, <span class="bu">Distributions</span>, <span class="bu">LinearAlgebra</span>, <span class="bu">Plots</span>, <span class="bu">Statistics</span>, <span class="bu">Printf</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -4845,7 +4845,7 @@ window.Quarto = {
 <p>Toni has a code script for almost every single function – this is way too many files! It would be better to group them either into (1) fewer files containing multiple functions, or into (2) separate sub-folders containing individual functions. But to be fair, her readme file is very useful.</p>
 </div></div><p>The code file <code>valfun.jl</code> performs the VFI.</p>
 <p>A separate file called <code>collectfunctions.jl</code> calls the above <code>valfun.jl</code> and performs some plotting, interpolation, simulation, and moment generation. To see the entire list of relevant files, please unfold the following code block.</p>
-<div id="cdb26f82" class="cell" data-execution_count="4">
+<div id="5e239954" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Show Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># # ============ Stuff that goes into VFI ====================</span></span>
@@ -4889,7 +4889,7 @@ window.Quarto = {
     \ln(z&#39;) = \rho \ln(z) + \sigma \varepsilon&#39;, \quad \varepsilon&#39; \sim \mathcal{N}(0, 1)
 \]</span></p>
 <p>Using the Tauchen method, we can approximate this continuous state space with a discrete Markov chain. The following function implements the Tauchen method to generate a grid of <span class="math inline">\(z\)</span> values and the corresponding transition probabilities. The input parameters for this function are: the autocorrelation <code>ρ = 0.7</code>, intercept of the AR1 <code>μ = 0</code>, standard deviation of the residual <code>σ = 0.2</code>, number of standard deviations <code>q = 3</code>, and the number of grid points <code>N_z = 41</code>.</p>
-<div id="f8ba37e4" class="cell" data-execution_count="5">
+<div id="1fb082dc" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Show Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">tauchen</span>(mew<span class="op">::</span><span class="dt">Float64</span>, sigma<span class="op">::</span><span class="dt">Float64</span>, rho<span class="op">::</span><span class="dt">Float64</span>, znum<span class="op">::</span><span class="dt">Int</span>, q<span class="op">::</span><span class="dt">Float64</span>)</span>
@@ -4921,7 +4921,7 @@ window.Quarto = {
 </details>
 </div>
 <p>The output is a vector of <span class="math inline">\(z\)</span> values and a matrix of transition probabilities. Throughout the code, we refer to them as <code>z_grid</code> and <code>trans</code>, respectively.</p>
-<div id="bc5d83e3" class="cell" data-execution_count="6">
+<div id="5d832fb8" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Show Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Tauchen parameters</span></span>
@@ -4936,14 +4936,14 @@ window.Quarto = {
 </details>
 </div>
 <p>We discretize the <span class="math inline">\(z\)</span> shock to 41 points.</p>
-<div id="ce481b09" class="cell" data-execution_count="7">
+<div id="f9cbb0df" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(z_grid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[0.4316379803912925, 0.45015664900394275, 0.46946982853260255, 0.48961160607115856, 0.5106175311603266, 0.5325246785313611, 0.5553717135416735, 0.579198960417851, 0.6040484734265217, 0.6299641110986802, 0.656991613638479, 0.6851786836531056, 0.7145750703462349, 0.7452326573236532, 0.7772055541660273, 0.8105501919304436, 0.8453254227492717, 0.8815926237021424, 0.9194158051443708, 0.9588617236830193, 1.0, 1.0429032417301707, 1.0876471716112988, 1.1343107611320749, 1.182976369914058, 1.2337298910735608, 1.2866609028200269, 1.3418628265584742, 1.3994330917750424, 1.4594733079966673, 1.52208944412838, 1.5873920154847612, 1.6554962788456467, 1.7265224358803595, 1.8005958452994977, 1.877847244108723, 1.9584129783550546, 2.0424352437729247, 2.1300623367547344, 2.2214489160888555, 2.316756275927041]</code></pre>
 </div>
 </div>
 <p>The transition matrix is a 41 x 41 matrix, where element <span class="math inline">\((i,j)\)</span> represents the probability of moving from state <span class="math inline">\(z_i\)</span> to state <span class="math inline">\(z_j\)</span>.</p>
-<div id="0e44a3aa" class="cell" data-execution_count="8">
+<div id="7c475920" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">size</span>(trans)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="7">
 <pre><code>(41, 41)</code></pre>
@@ -4951,7 +4951,7 @@ window.Quarto = {
 </div>
 <p>Next, we discretize the capital stock space, so that later on, our policy function contains integers indexing different <span class="math inline">\(K\)</span> values. The upper and lower bounds on <span class="math inline">\(K\)</span> are obtained by plugging in the minimum and maximum values of <span class="math inline">\(z\)</span> into the steady state equation. The Euler equation is given as: <span class="math display">\[ K = (\frac{r+δ}{αz})^{1-α}\]</span> which provides solutions to the equation that sets the marginal product of capital equal to the user cost of capital.</p>
 <p>We discretize <span class="math inline">\(K\)</span> into 501 points. Here is an example from the <code>valfunclunky</code> code script, where the risk free rate rate is 4%, capital depreciation rate <code>δ = 0.15</code>, curvature parameter <code>α = 0.70</code>, and equity adjustment cost <code>λ = 0.1</code>.</p>
-<div id="85aa2308" class="cell" data-execution_count="9">
+<div id="43c33a47" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Show Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Dimensions</span></span>
@@ -5009,7 +5009,7 @@ window.Quarto = {
     E^*(K, K&#39;, z) = zK^{\alpha} - (K&#39; - (1 - \delta)K).
 \]</span></p>
 <p>The profit function has three input parameters: current capital stock <code>K</code>, next period’s capital stock <code>K&#39;</code>, and profitability shock <code>z</code>. Since these variables have all been discretized, we can fully capture the profit function in a 3D array. The following code fills in this array with the profit function values for different <code>(z, K, K&#39;)</code> combinations.</p>
-<div id="0a5fb965" class="cell" data-execution_count="10">
+<div id="1dcb6616" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Show Code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize profit array</span></span>
@@ -5062,10 +5062,14 @@ window.Quarto = {
 <div class="no-row-height column-margin column-container"><div class>
 <p>In the summer school lecture notes, <span class="math inline">\(E\)</span> corresponds to <span class="math inline">\(R\)</span>, <span class="math inline">\(K\)</span> to <span class="math inline">\(s\)</span>, and <span class="math inline">\(z\)</span> to <span class="math inline">\(x\)</span>.</p>
 </div></div><p><span class="math display">\[ V(K,z) = \max_{K&#39; \in \Gamma(K,z)} \left[ E(K,z,K&#39;) + \beta \, \mathbb{E}_{z&#39;|z} \, V(K&#39;,z&#39;) \right] \]</span></p>
-<p>We already computed <span class="math inline">\(R(\cdot)\)</span> in the previous step, so let’s compute the expectation term. We take the expectation over <strong>all</strong> the next-period states <span class="math inline">\(z&#39;\)</span>, for <strong>each</strong> combination of the current state <span class="math inline">\(z\)</span> and the current capital stock <span class="math inline">\(K\)</span>. This gives us the next-period value function, which provides a mapping from <strong>all</strong> possible combinations of <span class="math inline">\(z&#39;\)</span> and <span class="math inline">\(K&#39;\)</span> to the .</p>
+<p>We already computed <span class="math inline">\(E(\cdot)\)</span> in the previous step, so now we compute the expectation term . For each current states <span class="math inline">\((K,z)\)</span> and each candidate choice of <span class="math inline">\(K&#39;\)</span>, we take the expectation of the continuation value <span class="math inline">\(V(K&#39;,z&#39;)\)</span> over all possible next-period shocks <span class="math inline">\(z&#39;\)</span>, conditional on current <span class="math inline">\(z\)</span>. Combining this expectation with the current-period return gives us the Bellman operator applied to our current guess of the value function. Iterating on this operator produces the <strong>next approximation</strong> to the fixed point <span class="math inline">\(V^*(K,z)\)</span>.</p>
+
+<div class="no-row-height column-margin column-container"><div class>
+<p>Repeated mistake: I kept thinking the left hand side as the value function <em>in the next economic period</em>. This is not right!!! Each iteration represents an <em>improved guess</em> of the same stationary value function. We are trying to arrive at the best approximation of the same object <span class="math inline">\(V^*\)</span>, not find the next-period value function. In fact, we want to find the point where current and next period value functions are numerically equal, i.e. when <span class="math inline">\(V\)</span> is stationary.</p>
+</div></div><p>not the value function in the next economic period.</p>
 <p>The value function is a 2D array of size <code>N_z x N_k</code>, where each element corresponds to the value of being in state <span class="math inline">\((z, K)\)</span>.</p>
 <p>The key here is to have the dimensions right: the value function is a 2D array of size <code>N_z x N_k</code>, and the transition matrix is a 2D array of size <code>N_z x N_z</code>. The following code implements the Bellman equation.</p>
-<div id="92ef83b8" class="cell" data-execution_count="11">
+<div id="32cde940" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Show Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bellman equation</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -5075,7 +5079,6 @@ window.Quarto = {
 <section id="value-function-iteration" class="level2">
 <h2 class="anchored" data-anchor-id="value-function-iteration">Value Function Iteration</h2>
 <p>The core of the VFI is to keep updating the value function until it converges to a numerical maximum. To do so, we keep iterating on the Bellman equation until the maximum (absolute) difference between the <em>current</em> and <em>previous</em> value function is less than a given tolerance level. So, at each iteration, we are really comparing the best value function we have found so far, against the next <em>candidate</em> maximum.</p>
-<!-- The criterion  -->
 </section>
 </section>
 <section id="simulation" class="level1">
@@ -5938,30 +5941,34 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb14-284"><a href="#cb14-284" aria-hidden="true" tabindex="-1"></a>:::</span>
 <span id="cb14-285"><a href="#cb14-285" aria-hidden="true" tabindex="-1"></a>$$ V(K,z) = \max_{K&#39; \in \Gamma(K,z)} \left<span class="co">[</span><span class="ot"> E(K,z,K&#39;) + \beta \, \mathbb{E}_{z&#39;|z} \, V(K&#39;,z&#39;) \right</span><span class="co">]</span> $$</span>
 <span id="cb14-286"><a href="#cb14-286" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-287"><a href="#cb14-287" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-288"><a href="#cb14-288" aria-hidden="true" tabindex="-1"></a>We already computed $R(\cdot)$ in the previous step, so let&#39;s compute the expectation term. We take the expectation over **all** the next-period states $z&#39;$, for **each** combination of the current state $z$ and the current capital stock $K$. This gives us the next-period value function, which provides a mapping from **all** possible combinations of $z&#39;$ and $K&#39;$ to the .</span>
-<span id="cb14-289"><a href="#cb14-289" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-290"><a href="#cb14-290" aria-hidden="true" tabindex="-1"></a>The value function is a 2D array of size <span class="in">`N_z x N_k`</span>, where each element corresponds to the value of being in state $(z, K)$.</span>
-<span id="cb14-291"><a href="#cb14-291" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-292"><a href="#cb14-292" aria-hidden="true" tabindex="-1"></a>The key here is to have the dimensions right: the value function is a 2D array of size <span class="in">`N_z x N_k`</span>, and the transition matrix is a 2D array of size <span class="in">`N_z x N_z`</span>. The following code implements the Bellman equation.</span>
-<span id="cb14-295"><a href="#cb14-295" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
-<span id="cb14-296"><a href="#cb14-296" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: true</span></span>
-<span id="cb14-297"><a href="#cb14-297" aria-hidden="true" tabindex="-1"></a><span class="in">#| output: true</span></span>
-<span id="cb14-298"><a href="#cb14-298" aria-hidden="true" tabindex="-1"></a><span class="in"># Bellman equation</span></span>
-<span id="cb14-299"><a href="#cb14-299" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-300"><a href="#cb14-300" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-301"><a href="#cb14-301" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-302"><a href="#cb14-302" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-303"><a href="#cb14-303" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-304"><a href="#cb14-304" aria-hidden="true" tabindex="-1"></a><span class="fu">## Value Function Iteration</span></span>
-<span id="cb14-305"><a href="#cb14-305" aria-hidden="true" tabindex="-1"></a>The core of the VFI is to keep updating the value function until it converges to a numerical maximum. To do so, we keep iterating on the Bellman equation until the maximum (absolute) difference between the *current* and *previous* value function is less than a given tolerance level. So, at each iteration, we are really comparing the best value function we have found so far, against the next *candidate* maximum.</span>
+<span id="cb14-287"><a href="#cb14-287" aria-hidden="true" tabindex="-1"></a>We already computed $E(\cdot)$ in the previous step, so now we compute the expectation term . For each current states $(K,z)$ and each candidate choice of $K&#39;$, we take the expectation of the continuation value $V(K&#39;,z&#39;)$ over all possible next-period shocks $z&#39;$, conditional on current $z$. Combining this expectation with the current-period return gives us the Bellman operator applied to our current guess of the value function. Iterating on this operator produces the **next approximation** to the fixed point $V^*(K,z)$. </span>
+<span id="cb14-288"><a href="#cb14-288" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-289"><a href="#cb14-289" aria-hidden="true" tabindex="-1"></a>::: {.column-margin}</span>
+<span id="cb14-290"><a href="#cb14-290" aria-hidden="true" tabindex="-1"></a>Repeated mistake: I kept thinking the left hand side as the value function *in the next economic period*. This is not right!!! Each iteration represents an *improved guess* of the same stationary value function. We are trying to arrive at the best approximation of the same object $V^*$, not find the next-period value function. In fact, we want to find the point where current and next period value functions are numerically equal, i.e. when $V$ is stationary. </span>
+<span id="cb14-291"><a href="#cb14-291" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb14-292"><a href="#cb14-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-293"><a href="#cb14-293" aria-hidden="true" tabindex="-1"></a> not the value function in the next economic period.</span>
+<span id="cb14-294"><a href="#cb14-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-295"><a href="#cb14-295" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-296"><a href="#cb14-296" aria-hidden="true" tabindex="-1"></a>The value function is a 2D array of size <span class="in">`N_z x N_k`</span>, where each element corresponds to the value of being in state $(z, K)$.</span>
+<span id="cb14-297"><a href="#cb14-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-298"><a href="#cb14-298" aria-hidden="true" tabindex="-1"></a>The key here is to have the dimensions right: the value function is a 2D array of size <span class="in">`N_z x N_k`</span>, and the transition matrix is a 2D array of size <span class="in">`N_z x N_z`</span>. The following code implements the Bellman equation.</span>
+<span id="cb14-301"><a href="#cb14-301" aria-hidden="true" tabindex="-1"></a><span class="in">```{julia}</span></span>
+<span id="cb14-302"><a href="#cb14-302" aria-hidden="true" tabindex="-1"></a><span class="in">#| code-fold: true</span></span>
+<span id="cb14-303"><a href="#cb14-303" aria-hidden="true" tabindex="-1"></a><span class="in">#| output: true</span></span>
+<span id="cb14-304"><a href="#cb14-304" aria-hidden="true" tabindex="-1"></a><span class="in"># Bellman equation</span></span>
+<span id="cb14-305"><a href="#cb14-305" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-306"><a href="#cb14-306" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-307"><a href="#cb14-307" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-308"><a href="#cb14-308" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!-- The criterion  --&gt;</span></span>
+<span id="cb14-307"><a href="#cb14-307" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-308"><a href="#cb14-308" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-309"><a href="#cb14-309" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-310"><a href="#cb14-310" aria-hidden="true" tabindex="-1"></a><span class="fu"># 2. Simulation</span></span>
-<span id="cb14-311"><a href="#cb14-311" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-312"><a href="#cb14-312" aria-hidden="true" tabindex="-1"></a><span class="fu"># 3. Estimation</span></span>
+<span id="cb14-310"><a href="#cb14-310" aria-hidden="true" tabindex="-1"></a><span class="fu">## Value Function Iteration</span></span>
+<span id="cb14-311"><a href="#cb14-311" aria-hidden="true" tabindex="-1"></a>The core of the VFI is to keep updating the value function until it converges to a numerical maximum. To do so, we keep iterating on the Bellman equation until the maximum (absolute) difference between the *current* and *previous* value function is less than a given tolerance level. So, at each iteration, we are really comparing the best value function we have found so far, against the next *candidate* maximum.</span>
+<span id="cb14-312"><a href="#cb14-312" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-313"><a href="#cb14-313" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-314"><a href="#cb14-314" aria-hidden="true" tabindex="-1"></a><span class="fu"># 2. Simulation</span></span>
+<span id="cb14-315"><a href="#cb14-315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-316"><a href="#cb14-316" aria-hidden="true" tabindex="-1"></a><span class="fu"># 3. Estimation</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

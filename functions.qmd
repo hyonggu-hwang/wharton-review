@@ -264,12 +264,10 @@ In the summer school lecture notes, $E$ corresponds to $R$, $K$ to $s$, and $z$ 
 :::
 $$ V(K,z) = \max_{K' \in \Gamma(K,z)} \left[ E(K,z,K') + \beta \, \mathbb{E}_{z'|z} \, V(K',z') \right] $$
 
-We already computed $R(\cdot)$ in the previous step, so now let's compute the expectation term. We take the expectation over **all** the next-period states $z'$ (given the current-period $z$), for **each** combination of the current state $z$ and the current capital stock $K$. Once we have obtained this expectation, we can compute the next-period value function by simply summing the current-period return function $E(\cdot)$ and the present value of the expectation. This next-period value function provides a mapping of **all** possible combinations of $z'$ and $K'$ to the values.
-
-We already computed $R(\cdot)$ in the previous step, so now we compute the expectation term. For each current state $(K,z)$ and each candidate choice of $K'$, we take the expectation of the continuation value $V(K',z')$ over all possible next-period shocks $z'$, conditional on current $z$. Combining this expectation with the current-period return gives us the Bellman operator applied to our current guess of the value function. Iterating on this operator produces the **next approximation** to the fixed point $V^*(K,z)$. 
+We already computed $E(\cdot)$ in the previous step, so now we compute the expectation term . For each current states $(K,z)$ and each candidate choice of $K'$, we take the expectation of the continuation value $V(K',z')$ over all possible next-period shocks $z'$, conditional on current $z$. Combining this expectation with the current-period return gives us the Bellman operator applied to our current guess of the value function. Iterating on this operator produces the **next approximation** to the fixed point $V^*(K,z)$. 
 
 ::: {.column-margin}
-I keep mistaking this concept as the *value function in the next economic period*. This is not the right way to understand VFI!!! Each iteration represents an improved guess of the **same** stationary value function. 
+Repeated mistake: I kept thinking the left hand side as the value function *in the next economic period*. This is not right!!! Each iteration represents an *improved guess* of the same stationary value function. We are trying to arrive at the best approximation of the same object $V^*$, not find the next-period value function. In fact, we want to find the point where current and next period value functions are numerically equal, i.e. when $V$ is stationary. 
 :::
 
  not the value function in the next economic period.
