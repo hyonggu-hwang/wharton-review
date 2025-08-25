@@ -253,12 +253,15 @@ A nested parallel loop likely causes too much overhead, so I only parallelize th
 ## Bellman Equation
 Next, we formulate the Bellman equation and numerically solve the maximization problem. The key relevant files are `valfun.jl` and `maxbellman.jl`, and there are a few more files that implement more advanced computational methods:
 
+::: {.column-margin}
+One thing I missed when coding this up for the first time was to distinguish the grid for state $K$ and policy $K'$.
+:::
+
 - `inbetween.jl`: performs interpolation in a set-up where policy grid is finer than the capital grid (i.e. `N_k_pol` > `N_k`) 
 - `howard.jl`: implements Howard's policy improvement algorithm, which is a more efficient way to solve the Bellman equation in earlier iterations of the VFI and when the policy function has already converged
 - `update.jl`: implements McQueen-Porteus algorithm to update the policy and value functions. 
 
 Following the notation from summer school notes, we can write the Bellman equation as:
-
 ::: {.column-margin}
 In the summer school lecture notes, $E$ corresponds to $R$, $K$ to $s$, and $z$ to $x$.
 :::
@@ -267,15 +270,12 @@ $$ V(K,z) = \max_{K' \in \Gamma(K,z)} \left[ E(K,z,K') + \beta \, \mathbb{E}_{z'
 We already computed $E(\cdot)$ in the previous step, so now we compute the expectation term . For each current states $(K,z)$ and each candidate choice of $K'$, we take the expectation of the continuation value $V(K',z')$ over all possible next-period shocks $z'$, conditional on current $z$. Combining this expectation with the current-period return gives us the Bellman operator applied to our current guess of the value function. Iterating on this operator produces the **next approximation** to the fixed point $V^*(K,z)$. 
 
 ::: {.column-margin}
-Repeated mistake: I kept thinking the left hand side as the value function *in the next economic period*. This is not right!!! Each iteration represents an *improved guess* of the same stationary value function. We are trying to arrive at the best approximation of the same object $V^*$, not find the next-period value function. In fact, we want to find the point where current and next period value functions are numerically equal, i.e. when $V$ is stationary. 
+Repeated mistake: I kept thinking the LHS as the value function in the next *economic period*. This is incorrect! Each iteration represents an *improved guess* of the same stationary value function. We want the best approximation of $V^*$, not the next-period value function. That is, we want the point where current and next period value functions are numerically equal, i.e. when $V$ is stationary. 
 :::
 
- not the value function in the next economic period.
+Recall that $V$ is a function of two state variables, $z$ and $K$, and we represent a discretized version of this function as a matrix. Each entry of this matrix is the value of being in each state $(z, K) pair $. To compute the expectation term, we use transition matrix `trans`, paying careful attention to the dimensions. The transition matrix is of size `N_z x N_z` and value function is a `N_z x N_k` matrix. The resulting matrix multiplication produces a `N_z x N_k` matrix, where each entry is the expected continuation value for each $(z', K')$ pair.
 
 
-The value function is a 2D array of size `N_z x N_k`, where each element corresponds to the value of being in state $(z, K)$.
-
-The key here is to have the dimensions right: the value function is a 2D array of size `N_z x N_k`, and the transition matrix is a 2D array of size `N_z x N_z`. The following code implements the Bellman equation.
 ```{julia}
 #| code-fold: true
 #| output: true
